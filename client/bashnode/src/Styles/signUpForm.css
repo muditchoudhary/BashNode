@@ -1,0 +1,10 @@
+.form-container {
+    @apply flex flex-col gap-3 my-7 m-2
+}
+.form-label {
+	@apply text-base text-midnight-slate;
+}
+
+.form-field {
+	@apply border-2 border-silver-gray rounded-md text-base px-1 py-1 shadow-md;
+}
