@@ -1,9 +1,15 @@
+import Footer from "./Components/Footer";
 import Header from "./Components/Header";
+import SignUpForm from "./Components/SignUpForm";
+import Tagline from "./Components/Tagline";
 
 function App() {
 	return (
 		<>
-			<h1>Hello world</h1>
+			<Header />
+            <Tagline />
+            <SignUpForm />
+            <Footer />
 		</>
 	);
 }

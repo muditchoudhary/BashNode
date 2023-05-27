@@ -3,7 +3,7 @@ import "../Styles/signUpForm.css"
 const SignUpForm = () => {
     return(
         <>
-           <form action="/submit" method="post" className=" mx-7 ">
+           <form action="/submit" method="post" className=" mx-7 mt-7">
                 <div className="form-container">
                     <label htmlFor="name" className="form-label">User Name</label>
                     <input type="text" id="name" name="name" required className="form-field" />
