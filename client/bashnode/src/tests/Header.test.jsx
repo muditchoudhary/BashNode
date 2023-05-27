@@ -5,5 +5,12 @@ import Header from "../Components/Header";
 test("render Header component", () => {
 	render(<Header />);
 
-	expect(screen.getByText("BashNode")).toBeInTheDocument();
+	const headerComponent = screen.getByTestId("header");
+	const companyLogo = screen.getByAltText(/bashnode.*? logo/i);
+	const CompanyName = screen.getByText(/bashnode/i);
+
+	expect(headerComponent).toBeInTheDocument();
+	expect(companyLogo).toBeInTheDocument();
+	expect(CompanyName).toBeInTheDocument();
+	expect(CompanyName).toHaveTextContent(/bashnode/i);
 });

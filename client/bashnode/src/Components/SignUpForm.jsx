@@ -21,7 +21,7 @@ const SignUpForm = () => {
 
                 <div className="form-container">
                     <label htmlFor="confirm-password" className="form-label">*Confirm Password</label>
-                    <input type="password" id="confirm-password" name="confirm-password" required className="form-field"/>
+                    <input type="password" id="confirm-password" name="confirm-password" required className="form-field" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=?])[A-Za-z\d!@#$%^&*()_\-+=?]{8,16}$" title="Password must be between 8 and 16 characters, contain at least one uppercase and one lowercase letter, contain at least one symbol."/>
                 </div>
                 
                 <div className="form-container">
