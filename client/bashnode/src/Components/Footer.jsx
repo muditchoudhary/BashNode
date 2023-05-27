@@ -19,7 +19,7 @@ const OrDivider = () => {
 const Footer = () => {
 	return (
 		<>
-			<div className="flex flex-col items-center gap-7">
+			<div className="flex flex-col items-center mt-4 gap-3">
 				<OrDivider />
 				<a href="#">Sign in to your existing account</a>
 			</div>
