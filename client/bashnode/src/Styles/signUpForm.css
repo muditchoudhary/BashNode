@@ -1,5 +1,5 @@
 .form-container {
-	@apply flex flex-col gap-2 mt-3 desktop:mt-11;
+	@apply flex flex-col gap-2 mt-3 desktop:mt-11 lg:mt-5;
 }
 .form-label {
 	@apply text-base text-midnight-slate desktop:text-2xl;

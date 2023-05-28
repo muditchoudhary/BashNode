@@ -4,7 +4,7 @@ import { useMediaQuery } from "react-responsive";
 
 const CompanyName = (props) => {
 	return (
-		<p className=" text-electric-blue font-bold text-2xl desktop:text-center desktop:text-5xl">{props.name}</p>
+		<p className=" text-electric-blue font-bold text-2xl desktop:text-5xl lg:text-center lg:text-3xl">{props.name}</p>
 	);
 };
 CompanyName.propTypes = {
@@ -23,7 +23,7 @@ CompanyLogo.propTypes = {
 
 const Header = () => {
 	const isDesktop = useMediaQuery({
-		query: "(min-width: 1440px) and (min-height: 1024px)",
+		query: "(min-width: 1024px)",
 	});
 
 	if (isDesktop) {

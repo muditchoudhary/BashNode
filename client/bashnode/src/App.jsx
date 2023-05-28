@@ -14,12 +14,12 @@ const AppForDesktop = () => {
 					<SignUpForm />
 					<Footer />
 				</div>
-				<div className="flex-2 flex flex-col items-center">
+				<div className="flex-2 flex flex-col items-center ">
 					<Tagline />
 					<img
 						src={publishArticle}
 						alt="Image of lady publishing article"
-						className=" w-[100%] h-[70%] desktop:text-2xl"
+						className=" w-[100%] h-[70%] desktop:text-2xl lg:h-[80%]"
 					/>
 				</div>
 			</div>
@@ -29,7 +29,7 @@ const AppForDesktop = () => {
 
 function App() {
 	const isDesktop = useMediaQuery({
-		query: "(min-width: 1440px) and (min-height: 1024px)",
+		query: "(min-width: 1024px)",
 	});
 	if (isDesktop) {
 		return <AppForDesktop />;
