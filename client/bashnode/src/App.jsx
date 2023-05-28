@@ -27,13 +27,7 @@ const AppForDesktop = () => {
 	);
 };
 
-function App() {
-	const isDesktop = useMediaQuery({
-		query: "(min-width: 1024px)",
-	});
-	if (isDesktop) {
-		return <AppForDesktop />;
-	}
+const AppForMobile = () => {
 	return (
 		<>
 			<Header />
@@ -42,6 +36,16 @@ function App() {
 			<Footer />
 		</>
 	);
-}
+};
+
+const App = () => {
+	const isDesktop = useMediaQuery({
+		query: "(min-width: 1024px)",
+	});
+	if (isDesktop) {
+		return <AppForDesktop />;
+	}
+	return <AppForMobile />;
+};
 
 export default App;
