@@ -1,10 +1,10 @@
 .form-container {
-	@apply flex flex-col gap-2 mt-3;
+	@apply flex flex-col gap-2 mt-3 desktop:mt-11;
 }
 .form-label {
-	@apply text-base text-midnight-slate;
+	@apply text-base text-midnight-slate desktop:text-2xl;
 }
 
 .form-field {
-	@apply border-2 border-silver-gray rounded-md text-base px-1 py-1 shadow-md invalid:border-red-500 invalid:text-red-500 focus:invalid:border-red-500 focus:invalid:text-red-500
+	@apply border-2 border-silver-gray rounded-md text-base px-1 py-1 shadow-md invalid:border-red-500 invalid:text-red-500 focus:invalid:border-red-500 focus:invalid:text-red-500 desktop:text-2xl
 }

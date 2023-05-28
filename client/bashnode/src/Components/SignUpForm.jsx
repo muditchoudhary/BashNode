@@ -3,7 +3,7 @@ import "../Styles/signUpForm.css"
 const SignUpForm = () => {
     return(
         <>
-           <form action="/submit" method="post" className=" mx-7 mt-4">
+           <form action="/submit" method="post" className=" mx-7 mt-4 desktop:mx-28">
                 <div className="form-container">
                     <label htmlFor="name" className="form-label">*User Name</label>
                     <input type="text" id="name" name="name" required className="form-field" minLength="3" maxLength="100" placeholder="Aman Singh" />
@@ -25,7 +25,7 @@ const SignUpForm = () => {
                 </div>
                 
                 <div className="form-container">
-                    <button type="submit" className=" h-9 bg-electric-blue border-[1px] border-electric-blue shadow-md text-white rounded-md">Sign up</button>
+                    <button type="submit" className=" h-9 bg-electric-blue border-[1px] border-electric-blue shadow-md text-white rounded-md desktop:text-2xl desktop:py-7 desktop:flex default:justify-center desktop:items-center">Sign up</button>
                 </div>
             </form>
         </>
