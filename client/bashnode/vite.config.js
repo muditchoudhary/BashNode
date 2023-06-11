@@ -11,4 +11,7 @@ export default defineConfig({
 
 		setupFiles: "./setupTests.js",
 	},
+	server: {
+		historyApiFallback: true,
+	},
 });
