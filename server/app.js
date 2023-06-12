@@ -20,7 +20,9 @@ db.on("error", console.error.bind(console, "mongo connection error"));
 
 const app = express();
 
-app.use(express.static("dist"));
+app.set("views", __dirname);
+app.set("view engine", "pug");
+
 app.use(
 	session({
 		secret: SESSION_ID,
@@ -33,8 +35,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
 
-app.get("/", (req, res) => res.render("index"));
+app.get("/", (req, res) => res.send("hello world"));
+
+// app.get("/sign-up", (req, res) => res.send("sign up page"));
 
 app.listen(PORT, () => {
-	console.log("Server started");
+	console.log(`Server started at port ${PORT}`);
 });
