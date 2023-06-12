@@ -31,6 +31,8 @@ app.use(
 	})
 );
 
+app.use(express.static("dist"));
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
@@ -38,6 +40,10 @@ app.use(express.urlencoded({ extended: false }));
 app.get("/", (req, res) => res.send("hello world"));
 
 // app.get("/sign-up", (req, res) => res.send("sign up page"));
+
+app.get("*", (req, res) => {
+	res.sendFile(path.join(__dirname + "/dist/index.html"));
+});
 
 app.listen(PORT, () => {
 	console.log(`Server started at port ${PORT}`);
