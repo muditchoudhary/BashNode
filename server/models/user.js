@@ -11,11 +11,14 @@ const UserSchema = new Schema({
 	email: {
 		type: String,
 		required: true,
-		unique: true,
+	},
+	password: {
+		type: String,
+		required: true,
 	},
 });
 
 UserSchema.plugin(passportLocalMongoose);
 
-const UserModel = mongoose.model("user", UserSchema);
-module.exports = UserModel;
+const User = mongoose.model("user", UserSchema);
+module.exports = User;
