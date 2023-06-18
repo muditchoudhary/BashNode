@@ -5,6 +5,20 @@ import Tagline from "../Components/Tagline";
 import publishArticle from "../assets/images/publish-article.svg";
 import { useMediaQuery } from "react-responsive";
 
+const TaglineBrandComponent = () => {
+	return (
+		<>
+			<div className="flex-2 flex flex-col items-center ">
+				<Tagline />
+				<img
+					src={publishArticle}
+					alt="Image of lady publishing article"
+					className=" w-[100%] h-[70%] desktop:text-2xl lg:h-[80%]"
+				/>
+			</div>
+		</>
+	);
+};
 const SignUpDesktop = () => {
 	return (
 		<>
@@ -12,16 +26,9 @@ const SignUpDesktop = () => {
 				<div className="flex-1 h-max self-center">
 					<Header />
 					<SignUpForm />
-					<Footer />
+					<Footer footerText={"Sign In to your existing account"} linkTo={"/auth/sign-in"} />
 				</div>
-				<div className="flex-2 flex flex-col items-center ">
-					<Tagline />
-					<img
-						src={publishArticle}
-						alt="Image of lady publishing article"
-						className=" w-[100%] h-[70%] desktop:text-2xl lg:h-[80%]"
-					/>
-				</div>
+				<TaglineBrandComponent />
 			</div>
 		</>
 	);
@@ -33,7 +40,7 @@ const SignUpMobile = () => {
 			<Header />
 			<Tagline />
 			<SignUpForm />
-			<Footer />
+			<Footer footerText={"Sign In to your existing account"} linkTo={"/auth/sign-in"} />
 		</>
 	);
 };
@@ -48,4 +55,4 @@ const SignUp = () => {
 	return <SignUpMobile />;
 };
 
-export default SignUp;
+export { SignUp, TaglineBrandComponent };

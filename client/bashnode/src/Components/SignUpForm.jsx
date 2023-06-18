@@ -1,6 +1,5 @@
 import { useState } from "react";
-import "../Styles/signUpForm.css";
-
+import "../Styles/form.css";
 const SignUpForm = () => {
 	const [userName, setUserName] = useState("");
 	const [email, setEmail] = useState("");
@@ -109,7 +108,7 @@ const SignUpForm = () => {
 						type="submit"
 						className=" h-9 bg-electric-blue border-[1px] border-electric-blue shadow-md text-white rounded-md desktop:text-2xl desktop:py-7 desktop:flex default:justify-center desktop:items-center"
 					>
-						Sign up
+						Sign Up
 					</button>
 				</div>
 			</form>
