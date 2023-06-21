@@ -9,7 +9,6 @@ const AuthController = {
 				password: req.body.password,
 			});
 			const result = await user.save();
-			res.redirect("/");
 			console.log("success");
 		} catch (error) {
 			return next(err);

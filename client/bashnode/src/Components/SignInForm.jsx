@@ -4,9 +4,36 @@ import "../Styles/form.css";
 const SignInForm = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		fetch("http://localhost:3000/auth/sign-in", {
+			method: "POST",
+			mode: "cors",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				username: email,
+				password: password,
+			}),
+		})
+			.then((res) => {
+				console.log(res);
+				if (res.ok) {
+					console.log("Authenticate!");
+				} else {
+					console.log("Not Authenticate");
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+	};
+
 	return (
 		<>
-			<form className=" mx-7 mt-4 desktop:mx-28">
+			<form onSubmit={handleSubmit} className=" mx-7 mt-4 desktop:mx-28">
 				<div className="form-container">
 					<label htmlFor="email" className="form-label">
 						*Email

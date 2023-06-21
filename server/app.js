@@ -8,6 +8,7 @@ const User = require("./models/user");
 const mongoose = require("mongoose");
 const authRoute = require("./routes/auth");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -24,9 +25,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.set("views", __dirname);
-app.set("view engine", "pug");
-
 // app.use(express.static("dist"));
 app.get("/", (req, res) => {
 	res.send("Hello world!");
@@ -39,6 +37,36 @@ app.use(
 		saveUninitialized: true,
 	})
 );
+
+passport.use(
+	new LocalStrategy(async (username, password, done) => {
+		try {
+			const user = await User.findOne({ email: username });
+			if (!user) {
+				return done(null, false, { message: "Incorrect email" });
+			}
+			if (user.password !== password) {
+				return done(null, false, { message: "Incorrect password" });
+			}
+			return done(null, user);
+		} catch (err) {
+			return done(err);
+		}
+	})
+);
+
+passport.serializeUser(function (user, done) {
+	done(null, user.id);
+});
+
+passport.deserializeUser(async function (id, done) {
+	try {
+		const user = await User.findById(id);
+		done(null, user);
+	} catch (err) {
+		done(err);
+	}
+});
 
 app.use(passport.initialize());
 app.use(passport.session());
