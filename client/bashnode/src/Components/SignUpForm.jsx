@@ -1,25 +1,38 @@
 import { useState } from "react";
 import "../Styles/form.css";
+import { useNavigate } from "react-router-dom";
+
 const SignUpForm = () => {
 	const [userName, setUserName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
+	const navigate = useNavigate();
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
-		fetch("http://localhost:3000/auth/sign-up", {
-			method: "POST",
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				userName: userName,
-				email: email,
-				password: password,
-			}),
-		});
+		try {
+			const response = await fetch("http://localhost:3000/auth/sign-up", {
+				method: "POST",
+				mode: "cors",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					userName: userName,
+					email: email,
+					password: password,
+				}),
+			});
+
+			if (response.status === 201) {
+				navigate("/");
+			} else {
+				console.log("failed");
+			}
+		} catch (error) {
+			console.error(error);
+		}
 	};
 
 	return (

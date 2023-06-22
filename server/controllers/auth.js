@@ -9,9 +9,12 @@ const AuthController = {
 				password: req.body.password,
 			});
 			const result = await user.save();
-			console.log("success");
+			res.status(201).json({ message: "Sign Up successfull" });
 		} catch (error) {
-			return next(err);
+			res.status(404).json({
+				message: "Some Error occured during sign up",
+			});
+			return next(error);
 		}
 	},
 };
