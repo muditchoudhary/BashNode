@@ -1,11 +1,16 @@
 .form-container {
-	@apply flex flex-col gap-2 mt-3 desktop:mt-11 lg:mt-5;
+	@apply flex flex-col mt-3 desktop:mt-11 lg:mt-5;
 }
 
 .form-label {
-	@apply text-base text-midnight-slate desktop:text-2xl;
+	@apply text-base mt-2 text-midnight-slate desktop:text-2xl;
 }
 
 .form-field {
-	@apply border-2 border-silver-gray rounded-md text-base px-1 py-1 shadow-md invalid:border-red-500 invalid:text-red-500 focus:invalid:border-red-500 focus:invalid:text-red-500 desktop:text-2xl;
+	@apply bg-white border border-slate-300 rounded-md shadow-md placeholder-slate-400
+    focus:outline-none focus:border-electric-blue focus:ring-1 focus:ring-electric-blue text-base px-1 py-1 desktop:text-2xl;
+}
+
+.form-field-invalid {
+	@apply border-red-500 text-red-600 focus:border-red-500 focus:ring-red-500
 }

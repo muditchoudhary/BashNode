@@ -1,130 +1,132 @@
-import { useState } from "react";
+// import { useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import "../Styles/form.css";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
+import Input from "./Input";
+import Button from "./Button";
 
 const SignUpForm = () => {
-	const [userName, setUserName] = useState("");
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [confirmPassword, setConfirmPassword] = useState("");
-	const navigate = useNavigate();
+	// const navigate = useNavigate();
+	const methods = useForm({
+		mode: "onBlur",
+	});
 
-	const handleSubmit = async (e) => {
-		e.preventDefault();
-		try {
-			const response = await fetch("http://localhost:3000/auth/sign-up", {
-				method: "POST",
-				mode: "cors",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					userName: userName,
-					email: email,
-					password: password,
-				}),
-			});
+	const onSubmit = methods.handleSubmit((data) => {
+		console.log(data);
+	});
+	// const handleSubmit = async (e) => {
+	// 	e.preventDefault();
+	// 	try {
+	// 		const response = await fetch("http://localhost:3000/auth/sign-up", {
+	// 			method: "POST",
+	// 			mode: "cors",
+	// 			headers: {
+	// 				"Content-Type": "application/json",
+	// 			},
+	// 			body: JSON.stringify({
+	// 				userName: userName,
+	// 				email: email,
+	// 				password: password,
+	// 			}),
+	// 		});
 
-			if (response.status === 201) {
-				navigate("/");
-			} else {
-				console.log("failed");
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
+	// 		if (response.status === 201) {
+	// 			navigate("/");
+	// 		} else {
+	// 			console.log("failed");
+	// 		}
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 	}
+	// };
 	return (
 		<>
-			<form onSubmit={handleSubmit} className=" mx-7 mt-4 desktop:mx-28">
-				<div className="form-container">
-					<label htmlFor="name" className="form-label">
-						*User Name
-					</label>
-					<input
-						type="text"
+			<FormProvider {...methods}>
+				<form
+					onSubmit={(e) => e.preventDefault()}
+					noValidate
+					className=" mx-7 mt-4 desktop:mx-28"
+				>
+					<Input
 						id="name"
-						name="name"
-						required
-						className="form-field"
-						minLength="3"
-						maxLength="100"
-						placeholder="Aman Singh"
-						value={userName}
-						onChange={(e) => {
-							setUserName(e.target.value);
+						label="User Name"
+						type="text"
+						placeHolder="Aman Singh"
+						autoComplete="on"
+						validationRules={{
+							required: {
+								value: true,
+								message: "required",
+							},
+							minLength: {
+								value: 4,
+								message:
+									"is too short (minimum is 4 characters)",
+							},
 						}}
 					/>
-				</div>
-
-				<div className="form-container">
-					<label htmlFor="email" className="form-label">
-						*Email
-					</label>
-					<input
-						type="email"
+					<Input
 						id="email"
-						name="email"
-						required
-						className="form-field"
-						placeholder="aman123@gmail.com"
-						value={email}
-						onChange={(e) => {
-							setEmail(e.target.value);
+						label="Email"
+						type="email"
+						placeHolder="aman123@gmail.com"
+						autoComplete="on"
+						validationRules={{
+							required: {
+								value: true,
+								message: "required",
+							},
+							pattern: {
+								value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+								message: "Please Enter A Valid Email!",
+							},
 						}}
 					/>
-				</div>
-
-				<div className="form-container">
-					<label htmlFor="password" className="form-label">
-						*Password
-					</label>
-					<input
-						type="text"
+					<Input
 						id="password"
-						name="password"
-						required
-						className="form-field"
-						pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,16}"
-						maxLength={16}
-						title="Password must be between 8 and 16 characters, contain at least one uppercase and one lowercase letter, contain at least one symbol."
-						value={password}
-						onChange={(e) => {
-							setPassword(e.target.value);
-						}}
-					/>
-				</div>
-
-				<div className="form-container">
-					<label htmlFor="confirm-password" className="form-label">
-						*Confirm Password
-					</label>
-					<input
+						label="Password"
 						type="text"
-						id="confirm-password"
-						name="confirm-password"
-						required
-						className="form-field"
-						pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,16}"
-						title="Password must be between 8 and 16 characters, contain at least one uppercase and one lowercase letter, contain at least one symbol."
-						maxLength={16}
-						value={confirmPassword}
-						onChange={(e) => {
-							setConfirmPassword(e.target.value);
+						validationRules={{
+							required: {
+								value: true,
+								message: "required",
+							},
+							minLength: {
+								value: 8,
+								message: "is too short (minimum 8 characters)",
+							},
+							maxLength: {
+								value: 16,
+								message: "is too long (maximum 16 characters)",
+							},
+							pattern: {
+								// eslint-disable-next-line no-useless-escape
+								value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,16}$/i,
+								message:
+									"Password requires symbol, lowercase, uppercase, and number",
+							},
 						}}
 					/>
-				</div>
 
-				<div className="form-container">
-					<button
-						type="submit"
-						className=" h-9 bg-electric-blue border-[1px] border-electric-blue shadow-md text-white rounded-md desktop:text-2xl desktop:py-7 desktop:flex default:justify-center desktop:items-center"
-					>
-						Sign Up
-					</button>
-				</div>
-			</form>
+					<Input
+						id="confirmPassword"
+						label="Confirm Password"
+						type="text"
+						validationRules={{
+							required: {
+								value: true,
+								message: "required",
+							},
+							validate: (match) => {
+                                const password = methods.getValues("password");
+                                return match === password || "Passwords should match"
+                            }
+						}}
+					/>
+
+					<Button handleSubmit={onSubmit} btnText="Sign Up" />
+				</form>
+			</FormProvider>
 		</>
 	);
 };
