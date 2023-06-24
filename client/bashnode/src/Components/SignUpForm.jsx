@@ -1,44 +1,39 @@
-// import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import "../Styles/form.css";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Input from "./Input";
 import Button from "./Button";
 
 const SignUpForm = () => {
-	// const navigate = useNavigate();
+	const navigate = useNavigate();
 	const methods = useForm({
 		mode: "onBlur",
 	});
 
-	const onSubmit = methods.handleSubmit((data) => {
-		console.log(data);
-	});
-	// const handleSubmit = async (e) => {
-	// 	e.preventDefault();
-	// 	try {
-	// 		const response = await fetch("http://localhost:3000/auth/sign-up", {
-	// 			method: "POST",
-	// 			mode: "cors",
-	// 			headers: {
-	// 				"Content-Type": "application/json",
-	// 			},
-	// 			body: JSON.stringify({
-	// 				userName: userName,
-	// 				email: email,
-	// 				password: password,
-	// 			}),
-	// 		});
+	const onSubmit = methods.handleSubmit(async (data) => {
+		try {
+			const response = await fetch("http://localhost:3000/auth/sign-up", {
+				method: "POST",
+				mode: "cors",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					userName: data.name,
+					email: data.email,
+					password: data.password,
+				}),
+			});
 
-	// 		if (response.status === 201) {
-	// 			navigate("/");
-	// 		} else {
-	// 			console.log("failed");
-	// 		}
-	// 	} catch (error) {
-	// 		console.error(error);
-	// 	}
-	// };
+			if (response.status === 201) {
+				navigate("/");
+			} else {
+				console.log("failed");
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	});
 	return (
 		<>
 			<FormProvider {...methods}>
@@ -118,9 +113,12 @@ const SignUpForm = () => {
 								message: "required",
 							},
 							validate: (match) => {
-                                const password = methods.getValues("password");
-                                return match === password || "Passwords should match"
-                            }
+								const password = methods.getValues("password");
+								return (
+									match === password ||
+									"Passwords should match"
+								);
+							},
 						}}
 					/>
 
