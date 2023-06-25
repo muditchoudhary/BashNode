@@ -1,19 +1,21 @@
-const express = require("express");
-const path = require("path");
-const session = require("express-session");
-const passport = require("passport");
-const LocalStrategy = require("passport-local").Strategy;
-const dotenv = require("dotenv").config();
-const User = require("./models/user");
-const mongoose = require("mongoose");
-const authRoute = require("./routes/auth");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
+import express from "express";
+import path from "path";
+import session from "express-session";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import dotenv from "dotenv";
+import User from "./models/user.js";
+import mongoose from "mongoose";
+import authRoute from "./routes/auth.js";
+import cors from "cors";
+import { query, matchedData, validationResult } from "express-validator";
 
+dotenv.config();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
 const SESSION_ID = process.env.SESSION_ID;
 
+// MONGO db setup
 mongoose.connect(MONGODB_URI, {
 	useUnifiedTopology: true,
 	useNewUrlParser: true,
@@ -21,6 +23,7 @@ mongoose.connect(MONGODB_URI, {
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "mongo connection error"));
 
+// Express setup
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -28,6 +31,15 @@ app.use(express.json());
 // app.use(express.static("dist"));
 app.get("/", (req, res) => {
 	res.send("Hello world!");
+});
+app.get("/hello", query("person").notEmpty().escape(), (req, res) => {
+	const result = validationResult(req);
+	if (result.isEmpty()) {
+		const data = matchedData(req);
+		return res.send(`Hello, ${data.person}!`);
+	}
+
+	res.send({ errors: result.array() });
 });
 
 app.use(
