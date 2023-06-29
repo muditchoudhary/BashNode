@@ -30,9 +30,6 @@ const Validation = (() => {
 				minNumbers: 1,
 				minSymbols: 1,
 			})
-			.matches(
-				"/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*W)(?!.* ).{8,16}$/"
-			)
 			.withMessage(
 				"Password requires symbol, lowercase, uppercase, and number"
 			)
