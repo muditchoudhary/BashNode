@@ -7,17 +7,18 @@ const AuthController = {
 		try {
 			const errors = validationResult(req);
 			if (!errors.isEmpty()) {
-				return res.status(400).json({ errors: errors.array() });
+				return res.status(409).json({ errors: errors.array() });
 			}
 
             // checking for existing user
 			const existingUser = await User.findOne({email});
 			if (existingUser) {
 				return res.status(409).json({
-					error: { msg: "Email is already taken", path: "email" },
+					errors: { msg: "Email is already taken", path: "email" },
 				});
 			}
 
+            // add the user to database
 			const user = new User({
 				username: req.body.userName,
 				email: req.body.email,
@@ -25,6 +26,7 @@ const AuthController = {
 			});
 			const result = await user.save();
 			res.status(201).json({ message: "Sign Up successful" });
+
 		} catch (error) {
 			res.status(500).json({
 				error: "Internal Server Error",

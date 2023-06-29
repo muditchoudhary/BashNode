@@ -22,7 +22,7 @@ const SignUpForm = () => {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					userName: data.name,
+					name: data.name,
 					email: data.email,
 					password: data.password,
 				}),
@@ -31,13 +31,25 @@ const SignUpForm = () => {
 			if (response.status === 201) {
 				navigate("/");
 			} else if (response.status === 409) {
-				const { error } = await response.json();
-				setError(error.path, {
-					message: error.msg,
-				});
+				const { errors } = await response.json();
+				console.log(errors);
+				// for handling multiple errors (return by express-validation)
+				if (Array.isArray(errors)) {
+					errors.forEach(({ type, msg, path }) => {
+						setError(path, { type, message: msg });
+					});
+					// for handling single errors (return by manually)
+				} else if (
+					typeof errors === "object" &&
+					!Array.isArray(errors)
+				) {
+					setError(errors.path, {
+						message: errors.msg,
+					});
+				}
 			} else {
-				// const resData = await response.json();
-				// console.log(resData);
+				const resData = await response.json();
+				console.log(resData);
 			}
 		} catch (error) {
 			console.error(error);
@@ -105,7 +117,7 @@ const SignUpForm = () => {
 							},
 							pattern: {
 								// eslint-disable-next-line no-useless-escape
-								value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*]).{8,16}$/i,
+								value: /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,16}$/,
 								message:
 									"Password requires symbol, lowercase, uppercase, and number",
 							},
