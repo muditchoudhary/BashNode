@@ -6,9 +6,12 @@ import Button from "./Button";
 
 const SignUpForm = () => {
 	const navigate = useNavigate();
+
 	const methods = useForm({
 		mode: "onBlur",
 	});
+
+	const { setError } = methods;
 
 	const onSubmit = methods.handleSubmit(async (data) => {
 		try {
@@ -27,8 +30,14 @@ const SignUpForm = () => {
 
 			if (response.status === 201) {
 				navigate("/");
+			} else if (response.status === 409) {
+				const { error } = await response.json();
+				setError(error.path, {
+					message: error.msg,
+				});
 			} else {
-				console.log("failed");
+				// const resData = await response.json();
+				// console.log(resData);
 			}
 		} catch (error) {
 			console.error(error);
@@ -112,10 +121,10 @@ const SignUpForm = () => {
 								value: true,
 								message: "required",
 							},
-							validate: (match) => {
+							validate: (confirmPassword) => {
 								const password = methods.getValues("password");
 								return (
-									match === password ||
+									confirmPassword === password ||
 									"Passwords should match"
 								);
 							},
