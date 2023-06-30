@@ -1,84 +1,93 @@
-import { useState } from "react";
-import "../Styles/form.css";
+import { FormProvider, useForm } from "react-hook-form";
+// import "../Styles/form.css";
+import Input from "./Input";
+import Button from "./Button";
 
 const SignInForm = () => {
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
+	const methods = useForm({
+		mode: "onBlur",
+	});
 
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		fetch("http://localhost:3000/auth/sign-in", {
-			method: "POST",
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				username: email,
-				password: password,
-			}),
-		})
-			.then((res) => {
-				console.log(res);
-				if (res.ok) {
-					console.log("Authenticate!");
-				} else {
-					console.log("Not Authenticate");
-				}
-			})
-			.catch((err) => {
-				console.log(err);
+	// const { setError } = methods;
+
+	const onSubmit = methods.handleSubmit(async (data) => {
+		try {
+			const response = await fetch("http://localhost:3000/auth/sign-in", {
+				method: "POST",
+				mode: "cors",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					username: data.email,
+					password: data.password,
+				}),
 			});
-	};
+			console.log(response);
+			if (response.ok) {
+				console.log("Authenticate");
+			} else {
+				console.log("Not Authenticate");
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	});
 
 	return (
 		<>
-			<form onSubmit={handleSubmit} className=" mx-7 mt-4 desktop:mx-28">
-				<div className="form-container">
-					<label htmlFor="email" className="form-label">
-						*Email
-					</label>
-					<input
-						type="email"
+			<FormProvider {...methods}>
+				<form
+					onSubmit={(e) => e.preventDefault()}
+					noValidate
+					className=" mx-7 mt-4 desktop:mx-28"
+				>
+					<Input
 						id="email"
-						name="email"
-						required
-						className="form-field"
-						minLength="3"
-						maxLength="100"
-						placeholder="Aman Singh"
-						value={email}
-						onChange={(e) => {
-							setEmail(e.target.value);
+						label="Email"
+						type="email"
+						placeHolder="aman123@gmail.com"
+						autoComplete="on"
+						validationRules={{
+							required: {
+								value: true,
+								message: "required",
+							},
+							pattern: {
+								value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+								message: "Please Enter A Valid Email!",
+							},
 						}}
 					/>
-				</div>
-				<div className="form-container">
-					<label htmlFor="password" className="form-label">
-						*Password
-					</label>
-					<input
-						type="text"
+
+					<Input
 						id="password"
-						name="password"
-						required
-						className="form-field"
-						maxLength={16}
-						value={password}
-						onChange={(e) => {
-							setPassword(e.target.value);
+						label="Password"
+						type="text"
+						validationRules={{
+							required: {
+								value: true,
+								message: "required",
+							},
+							minLength: {
+								value: 8,
+								message: "is too short (minimum 8 characters)",
+							},
+							maxLength: {
+								value: 16,
+								message: "is too long (maximum 16 characters)",
+							},
+							pattern: {
+								// eslint-disable-next-line no-useless-escape
+								value: /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,16}$/,
+								message:
+									"Password requires symbol, lowercase, uppercase, and number",
+							},
 						}}
 					/>
-				</div>
-				<div className="form-container">
-					<button
-						type="submit"
-						className=" h-9 bg-electric-blue border-[1px] border-electric-blue shadow-md text-white rounded-md desktop:text-2xl desktop:py-7 desktop:flex default:justify-center desktop:items-center"
-					>
-						Sign In
-					</button>
-				</div>
-			</form>
+					<Button handleSubmit={onSubmit} btnText="Sign In" />
+				</form>
+			</FormProvider>
 		</>
 	);
 };
