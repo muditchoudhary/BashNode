@@ -19,16 +19,13 @@ const SignInForm = () => {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					username: data.email,
+					email: data.email,
 					password: data.password,
 				}),
 			});
+			const resData = await response.json();
 			console.log(response);
-			if (response.ok) {
-				console.log("Authenticate");
-			} else {
-				console.log("Not Authenticate");
-			}
+			console.log(resData);
 		} catch (error) {
 			console.error(error);
 		}

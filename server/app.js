@@ -9,6 +9,7 @@ import mongoose from "mongoose";
 import authRoute from "./routes/auth.js";
 import cors from "cors";
 import { query, matchedData, validationResult } from "express-validator";
+import AuthController from "./controllers/auth.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
@@ -32,15 +33,6 @@ app.use(express.json());
 app.get("/", (req, res) => {
 	res.send("Hello world!");
 });
-app.get("/hello", query("person").notEmpty().escape(), (req, res) => {
-	const result = validationResult(req);
-	if (result.isEmpty()) {
-		const data = matchedData(req);
-		return res.send(`Hello, ${data.person}!`);
-	}
-
-	res.send({ errors: result.array() });
-});
 
 app.use(
 	session({
@@ -51,20 +43,10 @@ app.use(
 );
 
 passport.use(
-	new LocalStrategy(async (username, password, done) => {
-		try {
-			const user = await User.findOne({ email: username });
-			if (!user) {
-				return done(null, false, { message: "Incorrect email" });
-			}
-			if (user.password !== password) {
-				return done(null, false, { message: "Incorrect password" });
-			}
-			return done(null, user);
-		} catch (err) {
-			return done(err);
-		}
-	})
+	new LocalStrategy(
+		{ usernameField: "email" },
+		AuthController.authenticateUser
+	)
 );
 
 passport.serializeUser(function (user, done) {

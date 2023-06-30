@@ -37,7 +37,7 @@ const Validation = (() => {
 			.escape();
 	};
 
-	const validate = () => {
+	const signUpValidate = () => {
 		return [
 			createUserNameChain(),
 			createEmailChain(),
@@ -45,6 +45,10 @@ const Validation = (() => {
 		];
 	};
 
-	return { validate };
+	const signInValidate = () => {
+		return [createEmailChain(), createPasswordChain()];
+	};
+
+	return { signUpValidate, signInValidate };
 })();
 export default Validation;

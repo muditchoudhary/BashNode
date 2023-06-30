@@ -5,7 +5,8 @@
 	"private": true,
 	"scripts": {
 		"start": "node app.js",
-		"devstart": "nodemon  app.js"
+		"devstart": "nodemon  app.js",
+		"debug": "nodemon --inspect app.js"
 	},
 	"dependencies": {
 		"body-parser": "^1.20.2",

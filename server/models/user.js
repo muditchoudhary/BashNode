@@ -11,7 +11,7 @@ const UserSchema = new Schema({
 	email: {
 		type: String,
 		required: true,
-        unique: true,
+		unique: true,
 	},
 	password: {
 		type: String,
@@ -19,7 +19,7 @@ const UserSchema = new Schema({
 	},
 });
 
-UserSchema.plugin(passportLocalMongoose);
+UserSchema.plugin(passportLocalMongoose, { usernameField: "email" });
 
 const User = mongoose.model("user", UserSchema);
 export default User;
