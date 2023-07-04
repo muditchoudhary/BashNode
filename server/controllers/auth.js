@@ -1,11 +1,18 @@
 import passport from "passport";
 import User from "../models/user.js";
 import { validationResult } from "express-validator";
-const AuthController = {
-	handleSignUp: async (req, res, next) => {
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
+const JWT_SECRET = process.env.JWT_SECRET;
+
+const AuthController = (() => {
+	const handleSignUp = async (req, res, next) => {
 		const { email } = req.body;
 
 		try {
+			// checking for validation erros
 			const errors = validationResult(req);
 			if (!errors.isEmpty()) {
 				return res.status(409).json({ errors: errors.array() });
@@ -19,23 +26,27 @@ const AuthController = {
 				});
 			}
 
-			// add the user to database
+			// otherwise add the user to database
 			const user = new User({
 				username: req.body.name,
 				email: req.body.email,
 				password: req.body.password,
 			});
 			const result = await user.save();
-			res.status(201).json({ message: "Sign Up successful" });
+
+			// creating a jwt token
+			const token = createToken(user._id);
+			res.status(201).json({ message: "Sign Up successful", token });
 		} catch (error) {
+			// catch error during saving user on mongo
 			res.status(500).json({
 				error: "Internal Server Error",
 			});
 			return next(error);
 		}
-	},
+	};
 
-	handleSignIn: (req, res, next) => {
+	const handleSignIn = (req, res, next) => {
 		try {
 			const errors = validationResult(req);
 			if (!errors.isEmpty()) {
@@ -64,8 +75,11 @@ const AuthController = {
 							});
 							return;
 						}
+
+						const token = createToken(user._id);
 						res.status(200).json({
 							message: "Authentication successful",
+							token,
 						});
 					});
 				})(req, res, next);
@@ -76,9 +90,9 @@ const AuthController = {
 			});
 			return next(error);
 		}
-	},
+	};
 
-	authenticateUser: async (email, password, done) => {
+	const authenticateUser = async (email, password, done) => {
 		try {
 			const user = await User.findOne({ email: email });
 			if (!user) {
@@ -91,7 +105,19 @@ const AuthController = {
 		} catch (err) {
 			return done(err);
 		}
-	},
-};
+	};
+
+	/**
+	 * Generate a jwt token
+	 * @param {*} _id user id
+	 * @returns jwt token
+	 */
+	const createToken = (_id) => {
+		console.log(JWT_SECRET);
+		return jwt.sign({ _id }, JWT_SECRET, { expiresIn: "3d" });
+	};
+
+	return { authenticateUser, handleSignIn, handleSignUp };
+})();
 
 export default AuthController;

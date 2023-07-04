@@ -1,5 +1,4 @@
 import express from "express";
-import path from "path";
 import session from "express-session";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
@@ -10,10 +9,13 @@ import authRoute from "./routes/auth.js";
 import cors from "cors";
 import AuthController from "./controllers/auth.js";
 
+const { authenticateUser } = AuthController;
+
+// Envrionment variable setup
 dotenv.config();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
-const SESSION_ID = process.env.SESSION_ID;
+const SESSION_SECRET = process.env.SESSION_SECRET;
 
 // MONGO db setup
 mongoose.connect(MONGODB_URI, {
@@ -39,25 +41,19 @@ app.get("/", (req, res) => {
 
 app.use(
 	session({
-		secret: SESSION_ID,
+		secret: SESSION_SECRET,
 		resave: false,
 		saveUninitialized: true,
 	})
 );
 
-passport.use(
-	new LocalStrategy(
-		{ usernameField: "email" },
-		AuthController.authenticateUser
-	)
-);
+passport.use(new LocalStrategy({ usernameField: "email" }, authenticateUser));
 
 passport.serializeUser(function (user, done) {
 	done(null, user.id);
 });
 
 passport.deserializeUser(async function (id, done) {
-	console.log("calling deserialize");
 	try {
 		const user = await User.findById(id);
 		done(null, user);

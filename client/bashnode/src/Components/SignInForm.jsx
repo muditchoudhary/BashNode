@@ -14,7 +14,6 @@ const SignInForm = () => {
 		try {
 			const response = await fetch("http://localhost:3000/auth/sign-in", {
 				method: "POST",
-				// credentials: "include",
 				mode: "cors",
 				credentials: "include",
 				headers: {

@@ -4,8 +4,11 @@ import Validation from "../utils/validation.js";
 
 const router = express.Router();
 
-router.post("/sign-up", Validation.signUpValidate(), AuthController.handleSignUp);
+const { signUpValidate, signInValidate } = Validation;
+const { handleSignUp, handleSignIn } = AuthController;
 
-router.post("/sign-in", Validation.signInValidate(), AuthController.handleSignIn);
+router.post("/sign-up", signUpValidate(), handleSignUp);
+
+router.post("/sign-in", signInValidate(), handleSignIn);
 
 export default router;
