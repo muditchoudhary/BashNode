@@ -8,7 +8,6 @@ import User from "./models/user.js";
 import mongoose from "mongoose";
 import authRoute from "./routes/auth.js";
 import cors from "cors";
-import { query, matchedData, validationResult } from "express-validator";
 import AuthController from "./controllers/auth.js";
 
 dotenv.config();
@@ -25,8 +24,12 @@ const db = mongoose.connection;
 db.on("error", console.error.bind(console, "mongo connection error"));
 
 // Express setup
+const corsOptions = {
+	origin: "http://localhost:5173",
+	credentials: true,
+};
 const app = express();
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // app.use(express.static("dist"));
@@ -54,6 +57,7 @@ passport.serializeUser(function (user, done) {
 });
 
 passport.deserializeUser(async function (id, done) {
+	console.log("calling deserialize");
 	try {
 		const user = await User.findById(id);
 		done(null, user);
@@ -72,6 +76,9 @@ app.use("/auth", authRoute);
 // 	res.sendFile(path.join(__dirname + "/dist/index.html"));
 // });
 
+app.get("/pass", (req, res) => {
+	res.send(`${req.user}`);
+});
 app.listen(PORT, () => {
 	console.log(`Server started at port ${PORT}`);
 });

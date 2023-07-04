@@ -43,19 +43,31 @@ const AuthController = {
 			} else {
 				passport.authenticate("local", (err, user, info) => {
 					if (err) {
-						return next(err);
+						res.status(500).json({
+							message: "Something went wrong authenticating user",
+						});
+						next(err);
+						return;
 					}
 					if (!user) {
 						// Authentication failed
 						return res
 							.status(401)
 							.json({ message: "Authentication failed" });
+						return;
 					}
 					// Authentication succeeded
-
-					return res
-						.status(200)
-						.json({ message: "Authentication successful" });
+					req.login(user, (err) => {
+						if (err) {
+							res.status(500).json({
+								message: "Session save went bad.",
+							});
+							return;
+						}
+						res.status(200).json({
+							message: "Authentication successful",
+						});
+					});
 				})(req, res, next);
 			}
 		} catch (error) {
