@@ -28,18 +28,17 @@ const router = createBrowserRouter(
 					footerText={FOOTER_TEXT}
 					linkTo={LINK_TO}
 					img={publishArticleImg}
-                    
 				/>
 			}
-            errorElement={<p>hello error</p>}
+			errorElement={<p>hello error</p>}
 		>
-			<Route path="sign-up" element={<SignUpForm />}/>
-			<Route path="sign-in" element={<SignInForm />}/>
+			<Route path="sign-up" element={<SignUpForm />} />
+			<Route path="sign-in" element={<SignInForm />} />
 
+			<Route path="*" element={<p>hello error 1</p>} />
 		</Route>
 	)
 );
-
 
 ReactDOM.createRoot(document.getElementById("root")).render(
 	<React.StrictMode>
