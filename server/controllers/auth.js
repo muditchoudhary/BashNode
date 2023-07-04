@@ -8,35 +8,44 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const AuthController = (() => {
+	/**
+	 * If no validation erros && no existing user
+	 * add the user credentials to database after sanitization
+	 * @param {*} req
+	 * @param {*} res
+	 * @param {*} next
+	 * @returns
+	 */
 	const handleSignUp = async (req, res, next) => {
-		const { email } = req.body;
+		const { name, email, password } = req.body;
 
 		try {
-			// checking for validation erros
+			// Checking for validation errors
 			const errors = validationResult(req);
-			if (!errors.isEmpty()) {
-				return res.status(409).json({ errors: errors.array() });
-			}
+			if (!errors.isEmpty())
+				return res.status(400).json({ errors: errors.array() });
 
-			// checking for existing user
+			// Checking for existing user
 			const existingUser = await User.findOne({ email });
 			if (existingUser) {
-				return res.status(409).json({
+				return res.status(400).json({
 					errors: { msg: "Email is already taken", path: "email" },
 				});
 			}
 
 			// otherwise add the user to database
 			const user = new User({
-				username: req.body.name,
-				email: req.body.email,
-				password: req.body.password,
+				username: name,
+				email: email,
+				password: password,
 			});
 			const result = await user.save();
 
 			// creating a jwt token
 			const token = createToken(user._id);
-			res.status(201).json({ message: "Sign Up successful", token });
+			return res
+				.status(201)
+				.json({ message: "Sign Up successful", token });
 		} catch (error) {
 			// catch error during saving user on mongo
 			res.status(500).json({
@@ -51,39 +60,40 @@ const AuthController = (() => {
 			const errors = validationResult(req);
 			if (!errors.isEmpty()) {
 				return res.status(409).json({ errors: errors.array() });
-			} else {
-				passport.authenticate("local", (err, user, info) => {
-					if (err) {
-						res.status(500).json({
-							message: "Something went wrong authenticating user",
-						});
-						next(err);
-						return;
-					}
-					if (!user) {
-						// Authentication failed
-						return res
-							.status(401)
-							.json({ message: "Authentication failed" });
-						return;
-					}
-					// Authentication succeeded
-					req.login(user, (err) => {
-						if (err) {
-							res.status(500).json({
-								message: "Session save went bad.",
-							});
-							return;
-						}
-
-						const token = createToken(user._id);
-						res.status(200).json({
-							message: "Authentication successful",
-							token,
-						});
-					});
-				})(req, res, next);
 			}
+
+			passport.authenticate("local", (err, user, info) => {
+				if (err) {
+					res.status(500).json({
+						message: "Something went wrong authenticating user",
+					});
+					next(err);
+					return;
+				}
+				if (!user) {
+					// User not found! Authentication failed
+					return res
+						.status(401)
+						.json({ message: "Authentication failed" });
+				}
+
+				// User found! Authentication sucdeed
+				req.login(user, (err) => {
+					if (err) {
+						return res.status(500).json({
+							message: "Session save went bad.",
+						});
+					}
+
+					// Create a jwt token
+					const token = createToken(user._id);
+
+					return res.status(200).json({
+						message: "Authentication successful",
+						token,
+					});
+				});
+			})(req, res, next);
 		} catch (error) {
 			res.status(500).json({
 				error: "Internal Server Error",
