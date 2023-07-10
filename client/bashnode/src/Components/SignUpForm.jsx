@@ -1,11 +1,12 @@
 import { FormProvider, useForm } from "react-hook-form";
 import "../Styles/form.css";
-import { useNavigate } from "react-router-dom";
 import Input from "./Input";
 import Button from "./Button";
+import { useSignup } from "../hooks/useSignup";
+import { useEffect } from "react";
 
 const SignUpForm = () => {
-	const navigate = useNavigate();
+	const { signup, isLoading, error } = useSignup();
 
 	const methods = useForm({
 		mode: "onBlur",
@@ -13,49 +14,18 @@ const SignUpForm = () => {
 
 	const { setError } = methods;
 
-	const onSubmit = methods.handleSubmit(async (data) => {
-		try {
-			const response = await fetch("http://localhost:3000/auth/sign-up", {
-				method: "POST",
-				mode: "cors",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					name: data.name,
-					email: data.email,
-					password: data.password,
-				}),
+	useEffect(() => {
+		if (error !== null) {
+			error.forEach(({ msg, path }) => {
+				setError(path, { type: "manual", message: msg });
 			});
-
-			if (response.status === 201) {
-				navigate("/");
-			} else if (response.status === 409) {
-				const { errors } = await response.json();
-				console.log(errors);
-				// for handling multiple errors (return by express-validation)
-				if (Array.isArray(errors)) {
-					errors.forEach(({ type, msg, path }) => {
-						setError(path, { type, message: msg });
-					});
-					// for handling single errors (return by manually)
-				} else if (
-					typeof errors === "object" &&
-					!Array.isArray(errors)
-				) {
-					setError(errors.path, {
-						message: errors.msg,
-					});
-				}
-			} else {
-				const resData = await response.json();
-				console.log(resData);
-			}
-		} catch (error) {
-			console.error(error);
 		}
+	}, [error]);
+
+	const onSubmit = methods.handleSubmit(async (data) => {
+		await signup(data.name, data.email, data.password);
 	});
+
 	return (
 		<>
 			<FormProvider {...methods}>
