@@ -20,20 +20,17 @@ const AuthController = (() => {
 		const { name, email, password } = req.body;
 
 		try {
-			// Checking for validation errors
 			const errors = validationResult(req);
 			if (!errors.isEmpty())
 				return res.status(400).json({ errors: errors.array() });
 
-			// Checking for existing user
 			const existingUser = await User.findOne({ email });
 			if (existingUser) {
-				return res.status(400).json({
-					errors: { msg: "Email is already taken", path: "email" },
+				return res.status(409).json({
+					errors: [{ msg: "Email is already taken", path: "email" }],
 				});
 			}
 
-			// otherwise add the user to database
 			const user = new User({
 				username: name,
 				email: email,
@@ -41,11 +38,8 @@ const AuthController = (() => {
 			});
 			const result = await user.save();
 
-			// creating a jwt token
 			const token = createToken(user._id);
-			return res
-				.status(201)
-				.json({ message: "Sign Up successful", token });
+			return res.status(200).json({ email, token });
 		} catch (error) {
 			// catch error during saving user on mongo
 			res.status(500).json({
