@@ -2,34 +2,18 @@ import { FormProvider, useForm } from "react-hook-form";
 // import "../Styles/form.css";
 import Input from "./Input";
 import Button from "./Button";
+import { useSignin } from "../hooks/useSignin";
 
 const SignInForm = () => {
 	const methods = useForm({
 		mode: "onBlur",
 	});
+	const { login, isLoading, error } = useSignin();
 
 	// const { setError } = methods;
 
 	const onSubmit = methods.handleSubmit(async (data) => {
-		try {
-			const response = await fetch("http://localhost:3000/auth/sign-in", {
-				method: "POST",
-				mode: "cors",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					email: data.email,
-					password: data.password,
-				}),
-			});
-			const resData = await response.json();
-			console.log(response);
-			console.log(resData);
-		} catch (error) {
-			console.error(error);
-		}
+		await login(data.email, data.password);
 	});
 
 	return (

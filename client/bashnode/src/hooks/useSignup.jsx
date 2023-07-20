@@ -9,9 +9,9 @@ export const useSignup = () => {
 	const signup = async (name, email, password) => {
 		setIsLoading(true);
 		setError(null);
-
+		let response;
 		try {
-			const response = await fetch("http://localhost:3000/auth/sign-up", {
+			response = await fetch("http://localhost:3000/auth/sign-up", {
 				method: "POST",
 				mode: "cors",
 				credentials: "include",
@@ -24,28 +24,28 @@ export const useSignup = () => {
 					password,
 				}),
 			});
-
-			const json = await response.json();
-
-			if (response.status === 400) {
-				setIsLoading(false);
-				setError(json.errors);
-			}
-
-			if (response.status === 409) {
-				setIsLoading(false);
-				setError(json.errors);
-			}
-
-			if (response.status === 200) {
-				localStorage.setItem("user", JSON.stringify(json));
-				dispacth({ type: "LOGIN", payload: json });
-				setIsLoading(false);
-				setError(null);
-				console.log(localStorage);
-			}
 		} catch (error) {
 			console.error(error);
+		}
+
+		const json = await response.json();
+
+		if (response.status === 400) {
+			setIsLoading(false);
+			setError(json.errors);
+		}
+
+		if (response.status === 409) {
+			setIsLoading(false);
+			setError(json.errors);
+		}
+
+		if (response.status === 200) {
+			localStorage.setItem("user", JSON.stringify(json));
+			dispacth({ type: "LOGIN", payload: json });
+			setIsLoading(false);
+			setError(null);
+			console.log(localStorage);
 		}
 	};
 

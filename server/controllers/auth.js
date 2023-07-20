@@ -53,7 +53,7 @@ const AuthController = (() => {
 		try {
 			const errors = validationResult(req);
 			if (!errors.isEmpty()) {
-				return res.status(409).json({ errors: errors.array() });
+				return res.status(400).json({ errors: errors.array() });
 			}
 
 			passport.authenticate("local", (err, user, info) => {
@@ -65,13 +65,11 @@ const AuthController = (() => {
 					return;
 				}
 				if (!user) {
-					// User not found! Authentication failed
 					return res
 						.status(401)
 						.json({ message: "Authentication failed" });
 				}
 
-				// User found! Authentication sucdeed
 				req.login(user, (err) => {
 					if (err) {
 						return res.status(500).json({
@@ -79,11 +77,10 @@ const AuthController = (() => {
 						});
 					}
 
-					// Create a jwt token
 					const token = createToken(user._id);
 
 					return res.status(200).json({
-						message: "Authentication successful",
+						email: user.email,
 						token,
 					});
 				});
