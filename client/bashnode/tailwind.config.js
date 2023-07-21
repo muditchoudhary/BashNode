@@ -7,6 +7,7 @@ export default {
 				"electric-blue": "#2463EA",
 				"midnight-slate": "#2E353A",
 				"silver-gray": "#BEC1C3",
+                "serene-sky": "#e8edf3",
 			},
 			flex: {
 				"3": "3 3 0%",
