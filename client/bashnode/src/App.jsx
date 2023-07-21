@@ -13,6 +13,8 @@ import SignInForm from "./Components/SignInForm";
 import publishArticleImg from "./assets/images/publish-article.svg";
 
 import RootLayout from "./layout/RootLayout";
+import Home from "./layout/Home";
+import Draft from "./layout/Draft";
 
 //CONSTANT VARIABLES
 const FOOTER_TEXT = {
@@ -39,6 +41,8 @@ const router = createBrowserRouter(
 				<Route path="sign-up" element={<SignUpForm />} />
 				<Route path="sign-in" element={<SignInForm />} />
 			</Route>
+			<Route path="/home" element={<Home />}></Route>
+			<Route path="/draft" element={<Draft />} />
 		</Route>
 	)
 );
