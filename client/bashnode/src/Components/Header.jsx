@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import bashNodeLogo from "../assets/images/hashnode-icon.svg";
 import { useMediaQuery } from "react-responsive";
 
-const CompanyName = (props) => {
+export const CompanyName = (props) => {
 	return (
 		<p className=" text-electric-blue font-bold text-2xl desktop:text-5xl lg:text-center lg:text-3xl">
 			{props.name}
@@ -13,7 +13,7 @@ CompanyName.propTypes = {
 	name: PropTypes.string,
 };
 
-const CompanyLogo = (props) => {
+export const CompanyLogo = (props) => {
 	return (
 		<img src={props.logo} alt={props.altLogoText} className=" w-7 h-7 " />
 	);
@@ -23,7 +23,7 @@ CompanyLogo.propTypes = {
 	altLogoText: PropTypes.string,
 };
 
-const Header = () => {
+export const Header = () => {
 	const isDesktop = useMediaQuery({
 		query: "(min-width: 1024px)",
 	});
@@ -50,5 +50,3 @@ const Header = () => {
 		</>
 	);
 };
-
-export default Header;
