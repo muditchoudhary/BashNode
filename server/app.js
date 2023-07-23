@@ -68,13 +68,6 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use("/auth", authRoute);
 
-// app.get("*", (req, res) => {
-// 	res.sendFile(path.join(__dirname + "/dist/index.html"));
-// });
-
-app.get("/pass", (req, res) => {
-	res.send(`${req.user}`);
-});
 app.listen(PORT, () => {
 	console.log(`Server started at port ${PORT}`);
 });
