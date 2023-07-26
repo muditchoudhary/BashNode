@@ -18,12 +18,26 @@ const MONGODB_URI = process.env.MONGODB_URI;
 const SESSION_SECRET = process.env.SESSION_SECRET;
 
 // MONGO db setup
-mongoose.connect(MONGODB_URI, {
+const usersDBConnection = mongoose.createConnection(MONGODB_URI, {
 	useUnifiedTopology: true,
 	useNewUrlParser: true,
 });
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "mongo connection error"));
+
+usersDBConnection = mongoose.connection;
+usersDBConnection.on(
+	"error",
+	console.error.bind(console, "mongo connection error")
+);
+
+const blogsDBConnection = mongoose.createConnection(MONGODB_URI, {
+	useUnifiedTopology: true,
+	useNewUrlParser: true,
+});
+blogsDBConnection = mongoose.connection;
+blogsDBConnection.on(
+	"error",
+	console.error.bind(console, "mongo connection error")
+);
 
 // Express setup
 const corsOptions = {
@@ -34,7 +48,6 @@ const app = express();
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// app.use(express.static("dist"));
 app.get("/", (req, res) => {
 	res.send("Hello world!");
 });

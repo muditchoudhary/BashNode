@@ -30,5 +30,7 @@ const BlogDraftSchema = new Schema({
 	},
 });
 
-const BlogDraft = mongoose.model("blogDraft", BlogDraftSchema);
+const blogsDB = mongoose.connection.useDb("blogs_db");
+const BlogDraft = blogsDB.model("blogDraft", BlogDraftSchema);
+
 export default BlogDraft;
