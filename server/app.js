@@ -3,41 +3,16 @@ import session from "express-session";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import dotenv from "dotenv";
-import User from "./models/user.js";
-import mongoose from "mongoose";
 import authRoute from "./routes/auth.js";
+import publishRoute from "./routes/publish.js";
 import cors from "cors";
 import AuthController from "./controllers/auth.js";
-
 const { authenticateUser } = AuthController;
 
 // Envrionment variable setup
 dotenv.config();
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI;
 const SESSION_SECRET = process.env.SESSION_SECRET;
-
-// MONGO db setup
-const usersDBConnection = mongoose.createConnection(MONGODB_URI, {
-	useUnifiedTopology: true,
-	useNewUrlParser: true,
-});
-
-usersDBConnection = mongoose.connection;
-usersDBConnection.on(
-	"error",
-	console.error.bind(console, "mongo connection error")
-);
-
-const blogsDBConnection = mongoose.createConnection(MONGODB_URI, {
-	useUnifiedTopology: true,
-	useNewUrlParser: true,
-});
-blogsDBConnection = mongoose.connection;
-blogsDBConnection.on(
-	"error",
-	console.error.bind(console, "mongo connection error")
-);
 
 // Express setup
 const corsOptions = {
@@ -80,6 +55,7 @@ app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/auth", authRoute);
+app.use("/publish", publishRoute);
 
 app.listen(PORT, () => {
 	console.log(`Server started at port ${PORT}`);
