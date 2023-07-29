@@ -1,21 +1,12 @@
 import passport from "passport";
-import User from "../models/user.js";
 import { validationResult } from "express-validator";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+import { UserModel } from "../db/usersDB.js";
+import { handleServerError, createToken } from "./authHelper.js";
 
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
-const AuthController = (() => {
-	/**
-	 * If no validation erros && no existing user
-	 * add the user credentials to database after sanitization
-	 * @param {*} req
-	 * @param {*} res
-	 * @param {*} next
-	 * @returns
-	 */
+const AuthController = () => {
 	const handleSignUp = async (req, res, next) => {
 		const { name, email, password } = req.body;
 
@@ -24,14 +15,14 @@ const AuthController = (() => {
 			if (!errors.isEmpty())
 				return res.status(400).json({ errors: errors.array() });
 
-			const existingUser = await User.findOne({ email });
+			const existingUser = await UserModel.findOne({ email });
 			if (existingUser) {
 				return res.status(409).json({
 					errors: [{ msg: "Email is already taken", path: "email" }],
 				});
 			}
 
-			const user = new User({
+			const user = new UserModel({
 				username: name,
 				email: email,
 				password: password,
@@ -41,11 +32,8 @@ const AuthController = (() => {
 			const token = createToken(user._id);
 			return res.status(200).json({ email, token });
 		} catch (error) {
-			// catch error during saving user on mongo
-			res.status(500).json({
-				error: "Internal Server Error",
-			});
-			return next(error);
+			console.error("Error in handleSignUp:\n\n", error);
+			handleServerError(res, next, "Internal Server Error");
 		}
 	};
 
@@ -58,11 +46,12 @@ const AuthController = (() => {
 
 			passport.authenticate("local", (err, user, info) => {
 				if (err) {
-					res.status(500).json({
-						message: "Something went wrong authenticating user",
-					});
-					next(err);
-					return;
+					console.error("Error in handleSignIn:\n\n", err);
+					return handleServerError(
+						res,
+						next,
+						"Some internal passport authentication error occurred"
+					);
 				}
 				if (!user) {
 					return res
@@ -72,9 +61,12 @@ const AuthController = (() => {
 
 				req.login(user, (err) => {
 					if (err) {
-						return res.status(500).json({
-							message: "Session save went bad.",
-						});
+						console.error("Error in handleSignIn:\n\n", err);
+						return handleServerError(
+							res,
+							next,
+							"Session save went bed"
+						);
 					}
 
 					const token = createToken(user._id);
@@ -86,16 +78,14 @@ const AuthController = (() => {
 				});
 			})(req, res, next);
 		} catch (error) {
-			res.status(500).json({
-				error: "Internal Server Error",
-			});
-			return next(error);
+			console.error("Error in handleSignIn:\n\n", error);
+			handleServerError(res, next, "Internal Server Error");
 		}
 	};
 
 	const authenticateUser = async (email, password, done) => {
 		try {
-			const user = await User.findOne({ email: email });
+			const user = await UserModel.findOne({ email: email });
 			if (!user) {
 				return done(null, false, { message: "Incorrect email" });
 			}
@@ -104,20 +94,12 @@ const AuthController = (() => {
 			}
 			return done(null, user);
 		} catch (err) {
+			console.error("Error in authenticateUser:\n\n", err);
 			return done(err);
 		}
 	};
 
-	/**
-	 * Generate a jwt token
-	 * @param {*} _id user id
-	 * @returns jwt token
-	 */
-	const createToken = (_id) => {
-		return jwt.sign({ _id }, JWT_SECRET, { expiresIn: "3d" });
-	};
-
 	return { authenticateUser, handleSignIn, handleSignUp };
-})();
+};
 
 export default AuthController;
