@@ -2,6 +2,7 @@ import passport from "passport";
 import { validationResult } from "express-validator";
 import { UserModel } from "../db/usersDB.js";
 import { handleServerError, createToken } from "./authHelper.js";
+import dotenv from "dotenv";
 
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;

@@ -3,7 +3,7 @@ import session from "express-session";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import dotenv from "dotenv";
-import initializePassport from "./config/passportConfig.js";
+import {intializePassport} from "./config/passportConfig.js";
 import authRoute from "./routes/auth.js";
 import publishRoute from "./routes/publish.js";
 import cors from "cors";
@@ -37,7 +37,7 @@ app.use(
 	})
 );
 
-initializePassport(passport, LocalStrategy, authenticateUser);
+intializePassport(passport, LocalStrategy, authenticateUser);
 
 app.use(passport.initialize());
 app.use(passport.session());

@@ -1,4 +1,4 @@
-import { UserModel } from "../db/usersDB";
+import { UserModel } from "../db/usersDB.js";
 
 export function intializePassport(passport, LocalStrategy, authHandler) {
 	passport.use(new LocalStrategy({ usernameField: "email" }, authHandler));

@@ -5,7 +5,7 @@ import Validation from "../utils/validation.js";
 const router = express.Router();
 
 const { signUpValidate, signInValidate } = Validation;
-const { handleSignUp, handleSignIn } = AuthController;
+const { handleSignUp, handleSignIn } = AuthController();
 
 router.post("/sign-up", signUpValidate(), handleSignUp);
 
