@@ -1,4 +1,4 @@
-import UserSchema from "../models/user.js";
+import UserSchema from "../schemas/user.js";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 

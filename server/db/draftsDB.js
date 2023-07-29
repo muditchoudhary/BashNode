@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import BlogDraftSchema from "../models/blogDraft.js";
+import BlogDraftSchema from "../schemas/blogDraft.js";
 import dotenv from "dotenv";
 
 dotenv.config();
