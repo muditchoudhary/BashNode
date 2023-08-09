@@ -5,16 +5,15 @@ import {
 	RouterProvider,
 } from "react-router-dom";
 
-import "./index.css";
-
 import UserAuthentication from "./layout/UserAuthentication";
 import SignUpForm from "./Components/SignUpForm";
 import SignInForm from "./Components/SignInForm";
 import publishArticleImg from "./assets/images/publish-article.svg";
-
 import RootLayout from "./layout/RootLayout";
-import Draft from "./pages/Draft";
+import { DraftPage } from "./features/drafts/container/DraftPage";
 
+import "./index.css";
+import "antd/dist/reset.css";
 //CONSTANT VARIABLES
 const FOOTER_TEXT = {
 	signUp: "Sign In to your existing account",
@@ -40,11 +39,12 @@ const router = createBrowserRouter(
 				<Route path="sign-up" element={<SignUpForm />} />
 				<Route path="sign-in" element={<SignInForm />} />
 			</Route>
-			<Route path="draft" element={<Draft />} />
+			<Route path="draft" element={<DraftPage />} />
 		</Route>
 	)
 );
 
 export const App = () => {
 	return <RouterProvider router={router} />;
+	
 };
