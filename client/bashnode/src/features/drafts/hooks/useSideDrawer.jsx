@@ -5,9 +5,9 @@ export const useSideDrawer = () => {
 	const showDrawer = () => {
 		setOpen(true);
 	};
-	const onClose = () => {
+	const hideDrawer = () => {
 		setOpen(false);
 	};
 
-	return { open, showDrawer, onClose };
+	return { open, showDrawer, hideDrawer };
 };
