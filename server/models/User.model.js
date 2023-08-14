@@ -1,15 +1,27 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
+import passportLocalMongoose from "passport-local-mongoose";
 
-import {UserSchema} from "../schemas/User.schema.js";
+import { connectDBs } from "../database/Mongo.database.js";
 
-dotenv.config();
+const { Schema } = mongoose;
+const { usersDB } = connectDBs();
 
-const USERSDB_URI = process.env.USERSDB_URI;
-
-const usersDBConnection = mongoose.createConnection(USERSDB_URI, {
-	useNewUrlParser: true,
-	useUnifiedTopology: true,
+const UserSchema = new Schema({
+	username: {
+		type: String,
+		required: true,
+	},
+	email: {
+		type: String,
+		required: true,
+		unique: true,
+	},
+	password: {
+		type: String,
+		required: true,
+	},
 });
 
-export const UserModel = usersDBConnection.model("User", UserSchema);
+UserSchema.plugin(passportLocalMongoose, { usernameField: "email" });
+
+export const UserModel = usersDB.model("User", UserSchema);

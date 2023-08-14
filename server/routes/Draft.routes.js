@@ -2,12 +2,14 @@ import express from "express";
 
 import { DraftController } from "../controllers/Draft.controller.js";
 
-export const router = express.Router();
+export const loadDraftRoutes = (controller = DraftController) => {
+	const router = express.Router();
+	const { getTitlesAndKeys } = controller();
 
-const { getTitlesAndKeys } = DraftController();
+	router.get("/draft", getTitlesAndKeys);
 
-router.get("/draft", getTitlesAndKeys);
-
+	return router;
+};
 
 // router.post("/publish-blog", async (req, res) => {
 // 	const { email } = JSON.parse(req.headers.user);
@@ -27,4 +29,3 @@ router.get("/draft", getTitlesAndKeys);
 
 // 	res.status(200).json({ message: "success" });
 // });
-
