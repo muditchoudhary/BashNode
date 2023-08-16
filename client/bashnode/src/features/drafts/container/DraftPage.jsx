@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { SideDrawer } from "../components/SideDrawer";
 import { useBlogs } from "../hooks/useBlogs";
 import { useSideDrawer } from "../hooks/useSideDrawer";
+import { EditorToolbar } from "../components/EditorToolbar";
 
 // For reference
 // const DEMO_BLOG_DATA = {
@@ -20,12 +21,13 @@ import { useSideDrawer } from "../hooks/useSideDrawer";
 // };
 
 export const DraftPage = () => {
-	const { blogs, isLoading, setBlogsInitially, startLoading, stopLoading } = useBlogs();
+	const { blogs, isLoading, setBlogsInitially, startLoading, stopLoading } =
+		useBlogs();
 	const { open, showDrawer, hideDrawer } = useSideDrawer();
 
 	useEffect(() => {
 		startLoading();
-		fetch("http://localhost:3000/publish", {
+		fetch("http://localhost:3000/blog/draft", {
 			method: "GET",
 			headers: {
 				user: JSON.stringify({ email: "cmudit60@gmail.com" }),
@@ -44,7 +46,7 @@ export const DraftPage = () => {
 		return (
 			<div className="draft-container">
 				<SideDrawer open={open} onClose={hideDrawer} blogs={blogs} />
-				<Button onClick={showDrawer}>Open</Button>
+				<EditorToolbar showDrawer={showDrawer} />
 			</div>
 		);
 	}
