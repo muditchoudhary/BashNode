@@ -6,12 +6,13 @@ import { ReactComponent as DrawerIcon } from "../../../assets/icons/sidebar-draw
 
 export const EditorToolbar = ({ showDrawer }) => {
 	return (
-		<div className="editor-toolbar flex justify-between border-2 border-red-800 border-solid p-2">
+        // border-2 border-red-800 border-solid p-2
+		<div className="editor-toolbar flex justify-between p-3 ">
 			<Icon
 				component={DrawerIcon}
 				onClick={showDrawer}
 			/>
-			<Button type="default">Publish</Button>
+			<Button type="primary" shape="round">Publish</Button>
 		</div>
 	);
 };

@@ -5,6 +5,7 @@ import { SideDrawer } from "../components/SideDrawer";
 import { useBlogs } from "../hooks/useBlogs";
 import { useSideDrawer } from "../hooks/useSideDrawer";
 import { EditorToolbar } from "../components/EditorToolbar";
+import { EditorContainer } from "../components/editor-interface/EditorContainer";
 
 // For reference
 // const DEMO_BLOG_DATA = {
@@ -44,9 +45,10 @@ export const DraftPage = () => {
 		return <div>loading...</div>;
 	} else if (!isLoading && blogs) {
 		return (
-			<div className="draft-container">
+			<div className="draft-container flex flex-col min-h-screen">
 				<SideDrawer open={open} onClose={hideDrawer} blogs={blogs} />
 				<EditorToolbar showDrawer={showDrawer} />
+				<EditorContainer />
 			</div>
 		);
 	}
