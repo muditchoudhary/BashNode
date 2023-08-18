@@ -8,9 +8,6 @@
 		"devstart": "nodemon  app.js",
 		"debug": "nodemon --inspect app.js"
 	},
-	"jest": {
-		"transform": {}
-	},
 	"dependencies": {
 		"body-parser": "^1.20.2",
 		"connect-mongo": "^5.0.0",
@@ -32,7 +29,6 @@
 		"pug": "^3.0.2"
 	},
 	"devDependencies": {
-		"nodemon": "^1.14.9",
-		"supertest": "^6.3.3"
+		"nodemon": "^1.14.9"
 	}
 }
