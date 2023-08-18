@@ -1,12 +1,13 @@
-import { Button } from "antd";
 import { useEffect } from "react";
+import { useForm, FormProvider } from "react-hook-form";
 
 import { SideDrawer } from "../components/SideDrawer";
-import { useBlogs } from "../hooks/useBlogs";
-import { useSideDrawer } from "../hooks/useSideDrawer";
+import { useBlogsManagement } from "../hooks/useBlogsManagement";
+import { useSideDrawerManagement } from "../hooks/useSideDrawerManagement";
 import { EditorToolbar } from "../components/EditorToolbar";
 import { EditorContainer } from "../components/editor-interface/EditorContainer";
-
+import { useDraftActions } from "./useDraftActions";
+import { ErrorDisplay } from "../components/ErrorDisplay";
 // For reference
 // const DEMO_BLOG_DATA = {
 // 	drafts: [
@@ -22,9 +23,32 @@ import { EditorContainer } from "../components/editor-interface/EditorContainer"
 // };
 
 export const DraftPage = () => {
-	const { blogs, isLoading, setBlogsInitially, startLoading, stopLoading } =
-		useBlogs();
-	const { open, showDrawer, hideDrawer } = useSideDrawer();
+	const {
+		blogsData,
+		isLoading,
+		setInitialBlogsData,
+		startLoading,
+		stopLoading,
+	} = useBlogsManagement();
+	const { isDrawerOpen, openDrawer, closeDrawer } = useSideDrawerManagement();
+
+	const methods = useForm({
+		mode: "onSubmit",
+	});
+	const {
+		formState: { errors },
+	} = methods;
+
+	const { showAlert, hideAlert, isAlertVisible } = useDraftActions();
+
+	const onSave = methods.handleSubmit(
+		async (data) => {
+			console.log(data);
+		},
+		() => {
+			showAlert();
+		}
+	);
 
 	useEffect(() => {
 		startLoading();
@@ -36,19 +60,28 @@ export const DraftPage = () => {
 		})
 			.then((response) => response.json())
 			.then((fetchedBlogs) => {
-				setBlogsInitially(fetchedBlogs);
+				setInitialBlogsData(fetchedBlogs);
 				stopLoading();
 			});
 	}, []);
 
 	if (isLoading) {
 		return <div>loading...</div>;
-	} else if (!isLoading && blogs) {
+	} else if (!isLoading && blogsData) {
 		return (
 			<div className="draft-container flex flex-col min-h-screen">
-				<SideDrawer open={open} onClose={hideDrawer} blogs={blogs} />
-				<EditorToolbar showDrawer={showDrawer} />
-				<EditorContainer />
+				{Object.keys(errors).length > 0 && isAlertVisible && (
+					<ErrorDisplay errorMap={errors} onClose={hideAlert} />
+				)}
+				<SideDrawer
+					isOpen={isDrawerOpen}
+					onCloseDrawer={closeDrawer}
+					blogs={blogsData}
+				/>
+				<FormProvider {...methods}>
+					<EditorToolbar showDrawer={openDrawer} onSave={onSave} />
+					<EditorContainer />
+				</FormProvider>
 			</div>
 		);
 	}

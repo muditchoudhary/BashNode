@@ -1,22 +1,21 @@
 import { Menu } from "antd";
 import PropTypes from "prop-types";
 
-import { getItem } from "../utils/formatBlogsData";
+import { createMenuItem } from "../utils/menuItemHelpers.js";
 
 export const BlogsMenu = ({ drafts, published }) => {
 	const menuItems = [
-		getItem("My Drafts", "sub1", null, drafts, null),
-		getItem("Published", "sub2", null, published, null),
+		createMenuItem("My Drafts", "sub1", null, drafts, null),
+		createMenuItem("Published", "sub2", null, published, null),
 	];
-	const defautSelectedKey =
-		!drafts.length ? null : drafts[0].key;
+	const defaultSelectedKey = drafts.length ? drafts[0].key : null;
 
 	return (
 		<Menu
 			onClick={(e) => {
 				console.log("click:", e);
 			}}
-			defaultSelectedKeys={[defautSelectedKey]}
+			defaultSelectedKeys={[defaultSelectedKey]}
 			defaultOpenKeys={["sub1"]}
 			mode="inline"
 			items={menuItems}

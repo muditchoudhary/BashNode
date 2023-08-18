@@ -2,37 +2,34 @@ import { Drawer } from "antd";
 import PropTypes from "prop-types";
 
 import { BlogsMenu } from "./BlogsMenu";
-import { formatBlogObject } from "../utils/formatBlogsData";
+import { formatBlogList } from "../utils/menuItemHelpers.js";
 
 import { ReactComponent as PageIcon } from "../../../assets/icons/page.svg";
-import {ReactComponent as PublishedIcon} from "../../../assets/icons/page-done.svg"
+import { ReactComponent as PublishedIcon } from "../../../assets/icons/page-done.svg";
 
-const DRAWER_PLACEMENT = "left";
+const SIDE_DRAWER_PLACEMENT = "left";
 
-export const SideDrawer = ({ open, onClose, blogs }) => {
-	const drafts = formatBlogObject(
-		blogs.drafts,
-		<PageIcon className=" w-4 " />
-	);
-	const published = formatBlogObject(
+export const SideDrawer = ({ isOpen, onCloseDrawer, blogs }) => {
+	const drafts = formatBlogList(blogs.drafts, <PageIcon className=" w-4 " />);
+	const published = formatBlogList(
 		blogs.publishedBlogs,
 		<PublishedIcon className=" w-4 " />
 	);
 
 	return (
 		<Drawer
-			placement={DRAWER_PLACEMENT}
+			placement={SIDE_DRAWER_PLACEMENT}
 			maskClosable={true}
-			onClose={onClose}
-			open={open}
-			key={DRAWER_PLACEMENT}
+			onClose={onCloseDrawer}
+			open={isOpen}
+			key={SIDE_DRAWER_PLACEMENT}
 		>
 			<BlogsMenu drafts={drafts} published={published} />
 		</Drawer>
 	);
 };
 SideDrawer.propTypes = {
-	open: PropTypes.bool.isRequired,
-	onClose: PropTypes.func.isRequired,
-    blogs: PropTypes.object.isRequired,
+	isOpen: PropTypes.bool.isRequired,
+	onCloseDrawer: PropTypes.func.isRequired,
+	blogs: PropTypes.object.isRequired,
 };
