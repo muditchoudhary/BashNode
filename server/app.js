@@ -1,23 +1,25 @@
 import express from "express";
-import session from "express-session";
 import passport from "passport";
-import { Strategy as LocalStrategy } from "passport-local";
+import { Strategy as JwtStrategy } from "passport-jwt";
+import { ExtractJwt } from "passport-jwt";
 import dotenv from "dotenv";
-import { intializePassport } from "./config/passportConfig.js";
-
-import authRoute from "./routes/auth.js";
-import { loadDraftRoutes } from "./routes/Draft.routes.js";
 import cors from "cors";
-import AuthController from "./controllers/auth.js";
+
+import { loadAuthRoutes } from "./routes/Auth.routes.js";
+import { loadDraftRoutes } from "./routes/Draft.routes.js";
+import { AuthController } from "./controllers/Auth.controller.js";
+import { intializePassport } from "./config/passport.config.js";
+
 const { authenticateUser } = AuthController();
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
-const SESSION_SECRET = process.env.SESSION_SECRET;
+
 const AUTH_ROUTE_PREFIX = "/auth";
 const BLOG_ROUTE_PREFIX = "/blog";
 
 const draftRouter = loadDraftRoutes();
+const authRouther = loadAuthRoutes();
 
 const CORS_OPTIONS = {
 	origin: "http://localhost:5173",
@@ -32,21 +34,13 @@ app.get("/", (req, res) => {
 	res.send("Hello world!");
 });
 
-app.use(
-	session({
-		secret: SESSION_SECRET,
-		resave: false,
-		saveUninitialized: true,
-	})
-);
-
-intializePassport(passport, LocalStrategy, authenticateUser);
+intializePassport(passport, JwtStrategy, ExtractJwt, authenticateUser);
 
 app.use(passport.initialize());
-app.use(passport.session());
+
 app.use(express.urlencoded({ extended: false }));
 
-app.use(AUTH_ROUTE_PREFIX, authRoute);
+app.use(AUTH_ROUTE_PREFIX, authRouther);
 app.use(BLOG_ROUTE_PREFIX, draftRouter);
 
 app.listen(PORT, () => {
