@@ -1,19 +1,55 @@
 import { FormProvider, useForm } from "react-hook-form";
 import { Button, Divider } from "antd";
-import { Link } from "react-router-dom";
+import {
+	Link,
+	useOutletContext,
+	useNavigate,
+	useLocation,
+} from "react-router-dom";
+import { useEffect } from "react";
 
 import { Input } from "../components/Input";
-import { useSignIn } from "../hooks/useSignIn";
 
 export const SignIn = () => {
+	const { handleAuth, isLoading, validationErrors, isAuthSuccessfull } =
+		useOutletContext();
+
 	const methods = useForm({
 		mode: "onBlur",
 	});
 
-	const { login } = useSignIn();
+	const { setError } = methods;
+
+	const navigate = useNavigate();
+
+	const location = useLocation();
+	let from;
+
+	if (
+		location &&
+		location.state &&
+		location.state.from &&
+		location.state.from.pathname
+	) {
+		from = location.state.from.pathname;
+	} else from = "/";
+
+	useEffect(() => {
+		if (validationErrors) {
+			for (const key in validationErrors) {
+				setError(key, {
+					type: "manual",
+					message: validationErrors[key]["msg"],
+				});
+			}
+		}
+		if (isAuthSuccessfull) {
+			navigate(from, { replace: true });
+		}
+	}, [validationErrors, isAuthSuccessfull]);
 
 	const onSubmit = methods.handleSubmit(async (data) => {
-		await login(data.email, data.password);
+		await handleAuth(data.email, data.password);
 	});
 
 	return (
@@ -52,12 +88,18 @@ export const SignIn = () => {
 									value: true,
 									message: "required",
 								},
+								maxLength: {
+									value: 16,
+									message:
+										"is too long (maximum 16 characters)",
+								},
 							}}
 						/>
 						<Button
 							type="primary"
 							onClick={onSubmit}
 							className="mt-6 2xl:mt-9"
+							loading={isLoading}
 						>
 							Sign In
 						</Button>

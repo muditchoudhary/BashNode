@@ -1,19 +1,19 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { ConfigProvider } from "antd";
 import { useMediaQuery } from "react-responsive";
 
 import { AlertBox } from "../../../components/AlertBox";
 import { useSignUp } from "../hooks/useSignUp";
+import { useSignIn } from "../hooks/useSignIn";
 import { useAlert } from "../../../hooks/useAlert";
 
 import publishArticleImg from "../../../assets/images/publish-article.svg";
-
-import "../styles/test.css";
 
 export const AuthLayout = () => {
 	const isScreen2xl = useMediaQuery({
 		query: "(min-width: 1536px)",
 	});
+	const { pathname } = useLocation();
 
 	const {
 		message,
@@ -24,25 +24,25 @@ export const AuthLayout = () => {
 		setType,
 		closeAlert,
 	} = useAlert();
-	const {
-		signUp,
-		isLoading,
-		validationErrors,
-		serverErrors,
-		setServerErrors,
-        isSignUpSuccessfull
-	} = useSignUp(setMessage, setDescription, setType);
+	const signUpState = useSignUp(setMessage, setDescription, setType);
+	const signInState = useSignIn(setMessage, setDescription, setType);
+
+	const authenticationState =
+		pathname === "/sign-in" ? signInState : signUpState;
+
+	const { handleAuth, isLoading, serverErrors, validationErrors, isAuthSuccessfull } =
+		authenticationState;
 
 	return (
 		<>
 			<div className="auth-layout-container flex">
-				{serverErrors && (
+				{authenticationState.serverErrors && (
 					<AlertBox
 						message={message}
 						description={description}
 						type={type}
 						closeAlert={() => {
-							closeAlert(setServerErrors);
+							closeAlert(authenticationState.setServerErrors);
 						}}
 					/>
 				)}
@@ -65,7 +65,13 @@ export const AuthLayout = () => {
 						}}
 					>
 						<Outlet
-							context={{ signUp, isLoading, validationErrors, isSignUpSuccessfull }}
+							context={{
+								handleAuth,
+								isLoading,
+								serverErrors,
+								validationErrors,
+                                isAuthSuccessfull
+							}}
 						/>
 					</ConfigProvider>
 				</div>

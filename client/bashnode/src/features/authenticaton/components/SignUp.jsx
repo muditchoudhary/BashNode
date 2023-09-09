@@ -1,6 +1,11 @@
 import { FormProvider, useForm } from "react-hook-form";
 import { Button, Divider } from "antd";
-import { Link, useNavigate, useOutletContext } from "react-router-dom";
+import {
+	Link,
+	useNavigate,
+	useOutletContext,
+	useLocation,
+} from "react-router-dom";
 import { useEffect } from "react";
 
 import { Input } from "../components/Input";
@@ -8,7 +13,7 @@ import { Input } from "../components/Input";
 import "../styles/form.css";
 
 export const SignUp = () => {
-	const { signUp, isLoading, validationErrors, isSignUpSuccessfull } =
+	const { handleAuth, isLoading, validationErrors, isAuthSuccessfull } =
 		useOutletContext();
 
 	const methods = useForm({
@@ -18,6 +23,18 @@ export const SignUp = () => {
 	const { setError } = methods;
 
 	const navigate = useNavigate();
+	const location = useLocation();
+
+	let from;
+
+	if (
+		location &&
+		location.state &&
+		location.state.from &&
+		location.state.from.pathname
+	) {
+		from = location.state.from.pathname;
+	} else from = "/";
 
 	useEffect(() => {
 		if (validationErrors) {
@@ -28,13 +45,13 @@ export const SignUp = () => {
 				});
 			}
 		}
-		if (isSignUpSuccessfull) {
-			navigate("/", { replace: true });
+		if (isAuthSuccessfull) {
+			navigate(from, { replace: true });
 		}
-	}, [validationErrors, isSignUpSuccessfull]);
+	}, [validationErrors, isAuthSuccessfull]);
 
 	const onSubmit = methods.handleSubmit(async (data) => {
-		await signUp(data.username, data.email, data.password);
+		await handleAuth(data.username, data.email, data.password);
 	});
 
 	return (

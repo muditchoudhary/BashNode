@@ -13,7 +13,7 @@ export const useAlert = () => {
 		);
 		if (alertCloseIcon) {
 			alertCloseIcon.click();
-            setServerErrors(null);
+            setServerErrors ? setServerErrors(null) : null;
            
 		}
 	};
