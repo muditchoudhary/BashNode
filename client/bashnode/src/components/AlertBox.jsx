@@ -14,14 +14,14 @@ export const AlertBox = ({ message, description, type, closeAlert }) => {
 	}, []);
 
 	return (
-		<div className="alert-box border-2 border-green-800 border-solid absolute">
+		<div className="alert-box absolute">
 			<Alert
 				message={message}
 				description={description}
 				type={type}
 				closable
 				showIcon
-                afterClose={closeAlert}
+				afterClose={closeAlert}
 			/>
 		</div>
 	);
