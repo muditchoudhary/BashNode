@@ -24,19 +24,28 @@ export const AuthLayout = () => {
 		setType,
 		closeAlert,
 	} = useAlert();
+
+	// Takes alertState's states setter function so that the Alert component can be rendered when there are server errors.
 	const signUpState = useSignUp(setMessage, setDescription, setType);
 	const signInState = useSignIn(setMessage, setDescription, setType);
 
+	// Assign state based on the pathname.
 	const authenticationState =
 		pathname === "/sign-in" ? signInState : signUpState;
 
-	const { handleAuth, isLoading, serverErrors, validationErrors, isAuthSuccessfull } =
-		authenticationState;
+	const {
+		handleAuth,
+		isLoading,
+		serverErrors,
+		validationErrors,
+		isAuthSuccessfull,
+	} = authenticationState;
 
 	return (
 		<>
 			<div className="auth-layout-container flex">
 				{authenticationState.serverErrors && (
+					// If there are server errors (like backend server not working, client internet not working, db error etc), render the AlertBox component.
 					<AlertBox
 						message={message}
 						description={description}
@@ -70,7 +79,7 @@ export const AuthLayout = () => {
 								isLoading,
 								serverErrors,
 								validationErrors,
-                                isAuthSuccessfull
+								isAuthSuccessfull,
 							}}
 						/>
 					</ConfigProvider>

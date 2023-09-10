@@ -23,16 +23,8 @@ export const SignIn = () => {
 	const navigate = useNavigate();
 
 	const location = useLocation();
-	let from;
 
-	if (
-		location &&
-		location.state &&
-		location.state.from &&
-		location.state.from.pathname
-	) {
-		from = location.state.from.pathname;
-	} else from = "/";
+	const from = location?.state?.from?.pathname || "/";
 
 	useEffect(() => {
 		if (validationErrors) {
