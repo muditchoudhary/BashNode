@@ -1,12 +1,16 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { ConfigProvider } from "antd";
 
+import { useState } from "react";
+
 import { SideDrawer } from "../components/SideDrawer";
 
 import { useSideDrawerManagement } from "../hooks/useSideDrawerManagement";
 import { EditorToolbar } from "../components/EditorToolbar";
 import { EditorContainer } from "../components/EditorContainer";
 
+import { useAlert } from "../../../hooks/useAlert";
+import { AlertBox } from "../../../components/AlertBox";
 
 // For reference
 const DEMO_BLOG_DATA = {
@@ -43,14 +47,7 @@ const DEMO_BLOG_DATA = {
 
 	const { showAlert, hideAlert, isAlertVisible } = useDraftActions();
 
-	const onSave = methods.handleSubmit(
-		async (data) => {
-			console.log(data);
-		},
-		() => {
-			showAlert();
-		}
-	);
+
 
 	useEffect(() => {
 		startLoading();
@@ -79,6 +76,18 @@ export const DraftLayout = () => {
 
 	const { isDrawerOpen, openDrawer, closeDrawer } = useSideDrawerManagement();
 
+	const {
+		message,
+		description,
+		type,
+		setMessage,
+		setDescription,
+		setType,
+		closeAlert,
+	} = useAlert();
+
+	const [showAlert, setShowAlert] = useState(false);
+
 	const methods = useForm({
 		mode: "onSubmit",
 	});
@@ -87,12 +96,33 @@ export const DraftLayout = () => {
 		formState: { errors },
 	} = methods;
 
-	const onSave = methods.handleSubmit(async (data) => {
-		console.log(data);
-	});
+	const onSave = methods.handleSubmit(
+		async (data) => {
+			console.log(data);
+		},
+		(error) => {
+			console.log(errors);
+			setShowAlert(true);
+			const firstErrorFieldName = Object.keys(error)[0];
+			setType("error");
+			setMessage(error[firstErrorFieldName]["type"].toUpperCase());
+			setDescription(error[firstErrorFieldName]["message"]);
+		}
+	);
 
 	return (
 		<>
+			{showAlert && (
+				<AlertBox
+					message={message}
+					description={description}
+					type={"error"}
+					closeAlert={() => {
+						closeAlert();
+						setShowAlert(false);
+					}}
+				/>
+			)}
 			<div className="draft-layout-container h-screen flex flex-col 2xl:flex 2xl:flex-col 2xl:items-center">
 				<div className="draft-sub-container 2xl:w-4/5 flex flex-col flex-1 2xl:border-[1px] 2xl:border-solid">
 					<SideDrawer
