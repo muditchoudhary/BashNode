@@ -2,23 +2,23 @@ import { useState } from "react";
 
 export const useBlogsManagement = () => {
   const [blogsData, setBlogsData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isBlogLoading, setIsBlogLoading] = useState(false);
 
   const setInitialBlogsData = (blogs) => {
     setBlogsData(blogs);
   };
 
   const startLoading = () => {
-    setIsLoading(true);
+    setIsBlogLoading(true);
   };
 
   const stopLoading = () => {
-    setIsLoading(false);
+    setIsBlogLoading(false);
   };
 
   return {
     blogsData,
-    isLoading,
+    isBlogLoading,
     setInitialBlogsData,
     startLoading,
     stopLoading,

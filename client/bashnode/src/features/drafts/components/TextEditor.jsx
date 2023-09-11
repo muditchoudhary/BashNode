@@ -1,4 +1,6 @@
 import { useFormContext } from "react-hook-form";
+import PropTypes from "prop-types";
+import { useEffect } from "react";
 
 const TITLE_VALIDATION = {
 	required: {
@@ -29,8 +31,13 @@ const ARTICLE_VALIDATION = {
 	},
 };
 
-export const TextEditor = () => {
-	const { register } = useFormContext();
+export const TextEditor = ({ currentDraft }) => {
+	const { register, setValue } = useFormContext();
+
+    useEffect(() => {
+        setValue("title", currentDraft.title);
+        setValue("article", currentDraft.content);
+    })
 	return (
 		<>
 			<form
@@ -56,4 +63,7 @@ export const TextEditor = () => {
 			</form>
 		</>
 	);
+};
+TextEditor.propTypes = {
+	currentDraft: PropTypes.object.isRequired,
 };
