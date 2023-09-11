@@ -1,5 +1,4 @@
 import { body } from "express-validator";
-import bcrypt from "bcryptjs";
 
 import { UserModel } from "../models/User.model.js";
 
