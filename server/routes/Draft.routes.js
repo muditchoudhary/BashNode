@@ -23,11 +23,6 @@ export const loadDraftRoutes = (
 		saveDraftValidate(),
 		(req, res) => saveDraft(req, res, req.user)
 	);
-	router.post("/draft/test", saveDraftValidate(), (req, res, next) => {
-		const { email } = JSON.parse(req.headers.user);
-		console.log(email);
-		return res.status(200).json(req.headers.user);
-	});
 
 	return router;
 };
