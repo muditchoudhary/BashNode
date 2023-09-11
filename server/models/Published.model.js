@@ -29,7 +29,7 @@ const PublishedBlogSchema = new Schema({
 	},
 });
 
-export const PublishedBlogModel = blogsDB.model(
+export const PublishedBlogModel = await blogsDB.model(
 	"PublishedBlog",
 	PublishedBlogSchema
 );

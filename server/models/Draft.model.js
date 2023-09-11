@@ -29,4 +29,4 @@ const DraftSchema = new Schema({
 	},
 });
 
-export const DraftModel = blogsDB.model("Draft", DraftSchema);
+export const DraftModel = await blogsDB.model("Draft", DraftSchema);
