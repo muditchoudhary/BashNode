@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { useAuthContext } from "../../../hooks/useAuthContext";
 
-export const useSignUp = (setMessage, setDescription, setType) => {
+export const useSignUp = () => {
 	const [serverErrors, setServerErrors] = useState(null);
 	const [validationErrors, setValidationErrors] = useState(null);
 	const [isLoading, setIsLoading] = useState(null);
@@ -55,11 +55,6 @@ export const useSignUp = (setMessage, setDescription, setType) => {
 			setIsLoading(false);
 			setIsAuthSuccessfull(false);
 			setServerErrors(error.message);
-			setType("error");
-			setMessage("Fetch failed");
-			setDescription(
-				"Please check your internet connection and try again"
-			);
 		}
 	};
 

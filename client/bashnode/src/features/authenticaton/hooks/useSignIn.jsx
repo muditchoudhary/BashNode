@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuthContext } from "../../../hooks/useAuthContext";
 
-export const useSignIn = (setMessage, setDescription, setType) => {
+export const useSignIn = () => {
 	const [serverErrors, setServerErrors] = useState(null);
 	const [validationErrors, setValidationErrors] = useState(null);
 	const [isLoading, setIsLoading] = useState(null);
@@ -51,9 +51,6 @@ export const useSignIn = (setMessage, setDescription, setType) => {
 			setIsLoading(false);
 			setIsAuthSuccessfull(false);
 			setServerErrors(error.message);
-			setType("error");
-			setMessage(error.name);
-			setDescription(error.message);
 		}
 	};
 

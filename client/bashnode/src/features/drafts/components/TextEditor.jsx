@@ -31,13 +31,13 @@ const ARTICLE_VALIDATION = {
 	},
 };
 
-export const TextEditor = ({ currentDraft }) => {
+export const TextEditor = ({ currentBlog }) => {
 	const { register, setValue } = useFormContext();
 
-    useEffect(() => {
-        setValue("title", currentDraft.title);
-        setValue("article", currentDraft.content);
-    })
+	useEffect(() => {
+		setValue("title", currentBlog.title);
+		setValue("article", currentBlog.content);
+	}, [currentBlog.title, currentBlog.content]);
 	return (
 		<>
 			<form
@@ -45,17 +45,11 @@ export const TextEditor = ({ currentDraft }) => {
 				className="flex flex-col flex-1 px-3"
 			>
 				<textarea
-					defaultValue={
-						"Hello world this is the test title and it is long"
-					}
 					{...register("title", { ...TITLE_VALIDATION })}
 					className="text-2xl font-extrabold px-1 py-3 lg:text-5xl leading-snug lg:leading-snug border-none outline-none resize-none"
 					placeholder="Article Title..."
 				></textarea>
 				<textarea
-					defaultValue={
-						"Hello world this is the test article and it is long"
-					}
 					{...register("article", { ...ARTICLE_VALIDATION })}
 					className="flex-auto text-xl px-1 py-3 lg:text-3xl leading-tight lg:leading-tight border-none outline-none resize-none"
 					placeholder="Article Content..."
@@ -65,5 +59,5 @@ export const TextEditor = ({ currentDraft }) => {
 	);
 };
 TextEditor.propTypes = {
-	currentDraft: PropTypes.object.isRequired,
+	currentBlog: PropTypes.object.isRequired,
 };

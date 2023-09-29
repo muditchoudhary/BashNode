@@ -1,17 +1,14 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { ConfigProvider } from "antd";
-
+import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import { SideDrawer } from "../components/SideDrawer";
-import { useSideDrawerManagement } from "../hooks/useSideDrawerManagement";
 import { EditorToolbar } from "../components/EditorToolbar";
-import { EditorContainer } from "../components/EditorContainer";
-import { useAlert } from "../../../hooks/useAlert";
-import { AlertBox } from "../../../components/AlertBox";
-import { useDraft } from "../hooks/useDraft";
-import { useBlogsManagement } from "../hooks/useBlogsManagement";
+import { useFetchOrSaveBlog } from "../hooks/useFetchOrSaveBlog";
 import { useAuthContext } from "../../../hooks/useAuthContext";
+import { Spinner } from "../../../common/Spinner";
 
 // For reference
 // const DEMO_BLOG_DATA = {
@@ -27,148 +24,179 @@ import { useAuthContext } from "../../../hooks/useAuthContext";
 // 	],
 // };
 
+// currentDraft = {
+//     "_id": "650e7cb8ff87844f90651aac",
+//     "title": "working fine",
+//     "content": "",
+//     "user_id": "64fc33f08744bec13ce50057",
+//     "created_at": "2023-09-23T05:50:48.684Z",
+//     "updated_at": "2023-09-23T05:50:48.684Z",
+//     "__v": 0
+// }
+
 export const DraftLayout = () => {
-	const {
-		blogsData,
-		isBlogLoading,
-		setInitialBlogsData,
-		startLoading,
-		stopLoading,
-	} = useBlogsManagement();
+	const [blogsTitleAndKeys, setBlogsTitleAndKeys] = useState([]);
+	const [isBlogsTitleLoading, setIsBlogsTitleLoading] = useState(false);
+	const [currentSelectedBlogKey, setCurrentSelectedBlogKey] = useState(null);
 
-	const { isDrawerOpen, openDrawer, closeDrawer } = useSideDrawerManagement();
+	const [currentDraft, setCurrentDraft] = useState(null);
+	const [currentPublished, setCurrentPublished] = useState(null);
 
-	const { user } = useAuthContext();
+	const [isDraftWindow, setIsDraftWindow] = useState(true);
 
-	const {
-		message,
-		description,
-		type,
-		setMessage,
-		setDescription,
-		setType,
-		closeAlert,
-	} = useAlert();
-
-	const [showAlert, setShowAlert] = useState(false);
-
-	const {
-		handleSaveDraft,
-		isLoading,
-		isDraftSaved,
-		serverErrors,
-		validationErrors,
-	} = useDraft();
+	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
 	const methods = useForm({
 		mode: "onSubmit",
 	});
+	// const navigate = useNavigate();
 
-	const {
-		formState: { errors },
-	} = methods;
+	const { user } = useAuthContext();
+    
+	const { handleSaveDraft, handlePublishUpdate, isBlogFetchingOrSaving } =
+		useFetchOrSaveBlog();
 
 	const onSave = methods.handleSubmit(
 		async (data) => {
-			handleSaveDraft(data.title, data.article);
+			updateSideDrawerMenuItemTitle(currentDraft._id, data.title, true);
+			handleSaveDraft(currentDraft._id, data.title, data.article);
 		},
 		(error) => {
-			// this method show user the client side validation errors issued by react-hook-form
-			console.log(errors);
-			setShowAlert(true);
-			const firstErrorFieldName = Object.keys(error)[0];
-			setType("error");
-			setMessage(error[firstErrorFieldName]["type"].toUpperCase());
-			setDescription(error[firstErrorFieldName]["message"]);
+			toast.error(error[Object.keys(error)[0]]["message"]);
 		}
 	);
 
+	const onPublishUpdate = methods.handleSubmit(
+		async (data) => {
+			updateSideDrawerMenuItemTitle(
+				currentPublished._id,
+				data.title,
+				false
+			);
+			handlePublishUpdate(currentPublished._id, data.title, data.article);
+		},
+		(error) => {
+			toast.error(error[Object.keys(error)[0]]["message"]);
+		}
+	);
+
+	const updateSideDrawerMenuItemTitle = (
+		currentMenuItemKey,
+		newTitle,
+		isDraft
+	) => {
+		if (isDraft) {
+			setBlogsTitleAndKeys((prevState) => {
+				const updatedDrafts = prevState.drafts.map((draft) => {
+					if (draft._id === currentMenuItemKey) {
+						return { ...draft, title: newTitle };
+					}
+					return draft;
+				});
+
+				return { ...prevState, drafts: updatedDrafts };
+			});
+		} else {
+			setBlogsTitleAndKeys((prevState) => {
+				const updatedPublished = prevState.publishedBlogs.map(
+					(published) => {
+						if (published._id === currentMenuItemKey) {
+							return { ...published, title: newTitle };
+						}
+						return published;
+					}
+				);
+
+				return { ...prevState, publishedBlogs: updatedPublished };
+			});
+		}
+	};
+
 	useEffect(() => {
-		const fetchData = async () => {
-			startLoading();
+		const fetchBlogsTitleAndKeys = async () => {
+			setBlogsTitleAndKeys(null);
+			setIsBlogsTitleLoading(true);
 			let response;
 			try {
-				response = await fetch("http://localhost:3000/blog/draft", {
-					method: "GET",
-					headers: {
-						Authorization: `Bearer ${user.token}`,
-					},
-				});
+				response = await fetch(
+					"http://localhost:3000/blog/getBlogsTitlesAndKeys",
+					{
+						method: "GET",
+						headers: {
+							Authorization: `Bearer ${user.token}`,
+						},
+					}
+				);
 				const json = await response.json();
-
-				switch (response.status) {
-					case 200:
-						stopLoading();
-						setInitialBlogsData(json);
-						break;
+				if (!ingnore) {
+					setIsBlogsTitleLoading(false);
+					setBlogsTitleAndKeys(json);
+					setCurrentSelectedBlogKey(json["drafts"][0]["_id"]);
 				}
 			} catch (error) {
 				console.error("Error from DraftLayout\n\n", error);
 			}
 		};
-		fetchData();
+		let ingnore = false;
+		fetchBlogsTitleAndKeys();
+
+		return () => {
+			ingnore = true;
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	useEffect(() => {
-		if (validationErrors) {
-			const firstErrorFieldName = Object.keys(validationErrors)[0];
-			setType("error");
-			setMessage(
-				validationErrors[firstErrorFieldName]["type"].toUpperCase()
-			);
-			setDescription(validationErrors[firstErrorFieldName]["message"]);
-			setShowAlert(true);
-		}
-		if (serverErrors) {
-			setType("error");
-			setMessage(serverErrors["name"].toUpperCase());
-			setDescription(serverErrors["message"]);
-			setShowAlert(true);
-		}
-	}, [validationErrors, serverErrors]);
-
-	if (blogsData === null || isBlogLoading) return "Loading...";
-	else
+	if (isBlogsTitleLoading || blogsTitleAndKeys.length === 0)
+		return <Spinner />;
+	else {
 		return (
 			<>
-				{showAlert && (
-					<AlertBox
-						message={message}
-						description={description}
-						type={"error"}
-						closeAlert={() => {
-							closeAlert();
-							setShowAlert(false);
-						}}
-					/>
-				)}
 				<div className="draft-layout-container h-screen flex flex-col 2xl:flex 2xl:flex-col 2xl:items-center">
 					<div className="draft-sub-container 2xl:w-4/5 flex flex-col flex-1 2xl:border-[1px] 2xl:border-solid">
 						<SideDrawer
-							isOpen={isDrawerOpen}
-							onCloseDrawer={closeDrawer}
-							blogs={blogsData}
+							isDrawerOpen={isDrawerOpen}
+							setIsDrawerOpen={setIsDrawerOpen}
+							blogsTitleAndKeys={blogsTitleAndKeys}
+							currentSelectedBlogKey={currentSelectedBlogKey}
+							setCurrentSelectedBlogKey={
+								setCurrentSelectedBlogKey
+							}
+							setCurrentPublished={setCurrentPublished}
+							setIsDraftWindow={setIsDraftWindow}
 						/>
-						<FormProvider {...methods}>
-							<ConfigProvider
-								theme={{
-									components: {
-										Button: {
-											fontSize: 14,
-											controlHeight: 28,
-										},
+						<ConfigProvider
+							theme={{
+								components: {
+									Button: {
+										fontSize: 14,
+										controlHeight: 28,
 									},
+								},
+							}}
+						>
+							<EditorToolbar
+								setIsDrawerOpen={setIsDrawerOpen}
+								onSave={onSave}
+								onPublishUpdate={onPublishUpdate}
+								isDraftWindow={isDraftWindow}
+								isBlogFetchingOrSaving={isBlogFetchingOrSaving}
+							/>
+						</ConfigProvider>
+						<FormProvider {...methods}>
+							<Outlet
+								context={{
+									setCurrentDraft,
+									currentDraft,
+									setCurrentPublished,
+									currentPublished,
+									setCurrentSelectedBlogKey,
+									setIsDraftWindow,
 								}}
-							>
-								<EditorToolbar
-									showDrawer={openDrawer}
-									onSave={onSave}
-								/>
-							</ConfigProvider>
-							<EditorContainer currentDraft={blogsData["drafts"][0]} />
+							/>
 						</FormProvider>
 					</div>
 				</div>
 			</>
 		);
+	}
 };

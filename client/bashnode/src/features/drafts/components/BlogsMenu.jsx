@@ -1,21 +1,36 @@
 import { Menu } from "antd";
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { createMenuItem } from "../utils/menuItemHelpers.js";
 
-export const BlogsMenu = ({ drafts, published }) => {
+export const BlogsMenu = ({
+	drafts,
+	published,
+	currentSelectedBlogKey,
+	setCurrentSelectedBlogKey,
+	setIsDraftWindow,
+}) => {
+	const navigate = useNavigate();
+
 	const menuItems = [
-		createMenuItem("My Drafts", "sub1", null, drafts, null),
-		createMenuItem("Published", "sub2", null, published, null),
+		createMenuItem("My Drafts", "drafts", null, drafts, null),
+		createMenuItem("Published", "published", null, published, null),
 	];
-	const defaultSelectedKey = drafts.length ? drafts[0].key : null;
 
 	return (
 		<Menu
 			onClick={(e) => {
-				console.log("click:", e);
+				if (e["keyPath"][1] === "drafts") {
+					setIsDraftWindow(true);
+					navigate(`/drafts/${e["key"]}`);
+				} else if (e["keyPath"][1] === "published") {
+					setIsDraftWindow(false);
+					navigate(`/edit/${e["key"]}`);
+				}
+				setCurrentSelectedBlogKey(e["key"]);
 			}}
-			defaultSelectedKeys={[defaultSelectedKey]}
+			selectedKeys={[currentSelectedBlogKey]}
 			defaultOpenKeys={["sub1"]}
 			mode="inline"
 			items={menuItems}
@@ -25,4 +40,7 @@ export const BlogsMenu = ({ drafts, published }) => {
 BlogsMenu.propTypes = {
 	drafts: PropTypes.array.isRequired,
 	published: PropTypes.array.isRequired,
+	currentSelectedBlogKey: PropTypes.string.isRequired,
+	setCurrentSelectedBlogKey: PropTypes.func.isRequired,
+	setIsDraftWindow: PropTypes.func.isRequired,
 };

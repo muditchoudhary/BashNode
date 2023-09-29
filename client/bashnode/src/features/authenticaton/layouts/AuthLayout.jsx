@@ -2,10 +2,8 @@ import { Outlet, useLocation } from "react-router-dom";
 import { ConfigProvider } from "antd";
 import { useMediaQuery } from "react-responsive";
 
-import { AlertBox } from "../../../components/AlertBox";
 import { useSignUp } from "../hooks/useSignUp";
 import { useSignIn } from "../hooks/useSignIn";
-import { useAlert } from "../../../hooks/useAlert";
 
 import publishArticleImg from "../../../assets/images/publish-article.svg";
 
@@ -15,19 +13,9 @@ export const AuthLayout = () => {
 	});
 	const { pathname } = useLocation();
 
-	const {
-		message,
-		description,
-		type,
-		setMessage,
-		setDescription,
-		setType,
-		closeAlert,
-	} = useAlert();
-
 	// Takes alertState's states setter function so that the Alert component can be rendered when there are server errors.
-	const signUpState = useSignUp(setMessage, setDescription, setType);
-	const signInState = useSignIn(setMessage, setDescription, setType);
+	const signUpState = useSignUp();
+	const signInState = useSignIn();
 
 	// Assign state based on the pathname.
 	const authenticationState =
@@ -44,17 +32,6 @@ export const AuthLayout = () => {
 	return (
 		<>
 			<div className="auth-layout-container flex">
-				{authenticationState.serverErrors && (
-					// If there are server errors (like backend server not working, client internet not working, db error etc), render the AlertBox component.
-					<AlertBox
-						message={message}
-						description={description}
-						type={type}
-						closeAlert={() => {
-							closeAlert(authenticationState.setServerErrors);
-						}}
-					/>
-				)}
 				<div className="auth-container flex flex-col flex-1 lg:flex-1 ">
 					<p className="text-electric-blue text-4xl font-bold justify-self-center self-center flex items-center flex-1 py-3 2xl:text-6xl m-0 ">
 						BashNode
