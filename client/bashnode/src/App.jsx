@@ -10,6 +10,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { RootLayout } from "./layout/RootLayout";
+import { HomeLayout } from "./features/home/layout/HomeLayout";
 import { HomePage } from "./pages/HomePage";
 import { AuthLayout } from "./features/authenticaton/layouts/AuthLayout";
 import { DraftLayout } from "./features/drafts/layouts/DraftLayout";
@@ -75,7 +76,7 @@ export const App = () => {
 		<BrowserRouter>
 			<Routes>
 				<Route path="/" element={<RootLayout />}>
-					<Route index element={<HomePage />} />
+					<Route index element={<HomeLayout />} />
 					<Route element={<AuthRedirect />}>
 						<Route element={<AuthLayout />}>
 							<Route path="/sign-up" element={<SignUp />} />
