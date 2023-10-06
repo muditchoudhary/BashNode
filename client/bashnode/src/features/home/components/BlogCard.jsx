@@ -1,9 +1,10 @@
 import { Avatar } from "antd";
 import { useMediaQuery } from "react-responsive";
+import PropTypes from "prop-types";
 
-import publishBlog from "../../../../assets/images/publish-article.svg";
+import publishBlog from "../../../assets/images/publish-article.svg";
 
-export const BlogCard = () => {
+export const BlogCard = ({ title, content, publishDate }) => {
 	const isSMScreen = useMediaQuery({ query: "(max-width: 767px)" });
 	const isMDScreen = useMediaQuery({ query: "(min-width: 768px)" });
 	return (
@@ -15,7 +16,7 @@ export const BlogCard = () => {
 						<p className="text-gray-900 leading-none my-1">
 							Keshu Jangid
 						</p>
-						<p className="text-gray-600 m-0">Aug 18 2023</p>
+						<p className="text-gray-600 m-0">{publishDate}</p>
 					</div>
 				</div>
 				{isMDScreen && (
@@ -23,26 +24,10 @@ export const BlogCard = () => {
 						<div className=" flex justify-between">
 							<div className="bg-white rounded-b flex flex-col gap-3 leading-normal flex-2">
 								<div className="text-gray-900 font-bold line-clamp-2">
-									Can coffee make you a better developer? Can
-									coffee make you a better developer? Can
-									coffee make you a better developer? Can
-									coffee make you a better developer? Can
-									coffee make you a better developer? Can
-									coffee make you a better developer?
+									{title}
 								</div>
 								<p className="text-gray-700 text-base line-clamp-4">
-									Lorem ipsum dolor sit amet, consectetur
-									adipisicing elit. Voluptatibus quia, nulla!
-									Maiores et perferendis eaque, exercitationem
-									praesentium nihil. Lorem ipsum dolor sit
-									amet, consectetur adipisicing elit.
-									Voluptatibus quia, nulla! Maiores et
-									perferendis eaque, exercitationem
-									praesentium nihil. Lorem ipsum dolor sit
-									amet, consectetur adipisicing elit.
-									Voluptatibus quia, nulla! Maiores et
-									perferendis eaque, exercitationem
-									praesentium nihil.
+									{content}
 								</p>
 							</div>
 							<div className="h-48 w-full rounded-xl overflow-hidden flex-1">
@@ -58,16 +43,8 @@ export const BlogCard = () => {
 					<>
 						<div className="bg-white rounded-b flex flex-col justify-between leading-normal">
 							<div className="text-gray-900 font-bold line-clamp-2">
-								Can coffee make you a better developer? Can
-								coffee make you a better developer? Can coffee
-								make you a better developer?
+								{title}
 							</div>
-							{/* <p className="text-gray-700 text-base hidden">
-									Lorem ipsum dolor sit amet, consectetur
-									adipisicing elit. Voluptatibus quia, nulla!
-									Maiores et perferendis eaque, exercitationem
-									praesentium nihil.
-								</p> */}
 						</div>
 						<div className="h-48 w-full flex-none rounded-xl overflow-hidden">
 							<img
@@ -79,9 +56,14 @@ export const BlogCard = () => {
 				)}
 
 				<div className="flex items-center py-1 px-2">
-					<p className="text-gray-600 m-0 text-sm">likes 69</p>
+					<p className="text-gray-600 m-0 text-sm">likes 999</p>
 				</div>
 			</div>
 		</>
 	);
+};
+BlogCard.propTypes = {
+	title: PropTypes.string.isRequired,
+	content: PropTypes.string.isRequired,
+	publishDate: PropTypes.string.isRequired,
 };

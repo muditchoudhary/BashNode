@@ -2,10 +2,11 @@ import BashNodeIcon from "../../../assets/images/hashnode-icon.svg";
 import { Button, Avatar } from "antd";
 
 
-import { CardLoading } from "./components/CardLoading";
-import { BlogCard } from "./components/BlogCard";
+import { CardLoading } from "../components/CardLoading";
+import { BlogCard } from "../components/BlogCard";
 
 import { ReactComponent as WriteIcon } from "../../../assets/icons/writing.svg";
+import { Posts } from "../components/Posts";
 
 export const HomeLayout = () => {
 
@@ -43,13 +44,7 @@ export const HomeLayout = () => {
 				</div>
 			</div>
 			<div className="published-blog-card-container flex flex-col gap-4 justify-center items-center py-2 px-4 pt-6 md:px-14 lg:px-28 xl:px-56 2xl:px-96 ">
-				<BlogCard />
-                <BlogCard />
-                <BlogCard />
-                <BlogCard />
-                <BlogCard />
-                <BlogCard />
-                <BlogCard />
+				<Posts />
 			</div>
 		</>
 	);

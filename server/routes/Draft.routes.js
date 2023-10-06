@@ -3,6 +3,7 @@ import passport from "passport";
 
 import { draftValidation } from "../validators/Draft.validation.js";
 import { DraftController } from "../controllers/Draft.controller.js";
+import { get } from "mongoose";
 
 export const loadDraftRoutes = (
 	controller = DraftController,
@@ -15,7 +16,9 @@ export const loadDraftRoutes = (
 		getDraft,
 		getPublishedBlogs,
 		updatePublished,
-        publishDraft
+		publishDraft,
+		getPublishedBlogPosts,
+		geTotalPublishedBlogs,
 	} = controller();
 	const { saveDraftValidate } = validator();
 
@@ -52,9 +55,26 @@ export const loadDraftRoutes = (
 			updatePublished(req, res, req.user);
 		}
 	);
-    router.post("/draft/publish", passport.authenticate("jwt", { session: false }), saveDraftValidate(), (req, res) => {
-        publishDraft(req, res, req.user);
-    });
+	router.post(
+		"/draft/publish",
+		passport.authenticate("jwt", { session: false }),
+		saveDraftValidate(),
+		(req, res) => {
+			publishDraft(req, res, req.user);
+		}
+	);
+	router.get(
+		"/published/blogs",
+		(req, res) => {
+			getPublishedBlogPosts(req, res, req.user);
+		}
+	);
+	router.get(
+		"/totalPublishedBlogs",
+		(req, res) => {
+			geTotalPublishedBlogs(req, res, req.user);
+		}
+	);
 
 	return router;
 };
