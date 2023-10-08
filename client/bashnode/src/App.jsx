@@ -11,7 +11,6 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { RootLayout } from "./layout/RootLayout";
 import { HomeLayout } from "./features/home/layout/HomeLayout";
-import { HomePage } from "./pages/HomePage";
 import { AuthLayout } from "./features/authenticaton/layouts/AuthLayout";
 import { DraftLayout } from "./features/drafts/layouts/DraftLayout";
 import { SignIn } from "./features/authenticaton/components/SignIn";
@@ -19,6 +18,7 @@ import { SignUp } from "./features/authenticaton/components/SignUp";
 import { useAuthContext } from "./hooks/useAuthContext";
 import { DraftEditor } from "./features/drafts/components/DraftEditor";
 import { PublishEditor } from "./features/drafts/components/PublishEditor";
+import { BlogLayout } from "./features/blog/layouts/BlogLayout";
 
 import "./index.css";
 import "antd/dist/reset.css";
@@ -100,6 +100,9 @@ export const App = () => {
 							</Route>
 						</Route>
 					</Route>
+					<Route path="/blog" >
+                        <Route path=":blogId" element={<BlogLayout />} />
+                    </Route>
 				</Route>
 			</Routes>
 			<ToastContainer />

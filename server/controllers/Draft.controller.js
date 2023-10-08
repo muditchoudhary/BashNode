@@ -2,12 +2,14 @@ import { validationResult, matchedData } from "express-validator";
 
 import { DraftModel } from "../models/Draft.model.js";
 import { PublishedBlogModel } from "../models/Published.model.js";
+import { UserModel } from "../models/User.model.js";
 
 import mongoose from "mongoose";
 
 export const DraftController = (
 	draftModel = DraftModel,
-	publishedBlogModel = PublishedBlogModel
+	publishedBlogModel = PublishedBlogModel,
+	userModel = UserModel
 ) => {
 	const saveDraft = async (req, res, user) => {
 		try {
@@ -213,6 +215,23 @@ export const DraftController = (
 		}
 	};
 
+	const getSinglePublishedBlog = async (req, res) => {
+		try {
+			const blogId = req.params.blogId;
+			let blog = await publishedBlogModel.findOne({
+				_id: blogId,
+			});
+			const authorName = await userModel
+				.findOne({ _id: blog.user_id })
+				.select({ username: 1 });
+			blog = { ...blog._doc, authorName: authorName.username };
+			console.log(blog);
+			return res.status(200).json({ blog });
+		} catch (error) {
+			console.error("Error in getDraft:\n\n", error);
+		}
+	};
+
 	return {
 		getTitlesAndKeys,
 		saveDraft,
@@ -222,5 +241,6 @@ export const DraftController = (
 		publishDraft,
 		getPublishedBlogPosts,
 		geTotalPublishedBlogs,
+		getSinglePublishedBlog,
 	};
 };

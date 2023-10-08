@@ -3,7 +3,6 @@ import passport from "passport";
 
 import { draftValidation } from "../validators/Draft.validation.js";
 import { DraftController } from "../controllers/Draft.controller.js";
-import { get } from "mongoose";
 
 export const loadDraftRoutes = (
 	controller = DraftController,
@@ -19,6 +18,7 @@ export const loadDraftRoutes = (
 		publishDraft,
 		getPublishedBlogPosts,
 		geTotalPublishedBlogs,
+        getSinglePublishedBlog,
 	} = controller();
 	const { saveDraftValidate } = validator();
 
@@ -75,6 +75,9 @@ export const loadDraftRoutes = (
 			geTotalPublishedBlogs(req, res, req.user);
 		}
 	);
+    router.get("/getsingleBlog/:blogId", (req, res) => {
+        getSinglePublishedBlog(req, res, req.user);
+    });
 
 	return router;
 };

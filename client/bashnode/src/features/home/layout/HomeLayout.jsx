@@ -1,15 +1,25 @@
-import BashNodeIcon from "../../../assets/images/hashnode-icon.svg";
-import { Button, Avatar } from "antd";
+import { Button, Avatar, Dropdown } from "antd";
 
-
-import { CardLoading } from "../components/CardLoading";
-import { BlogCard } from "../components/BlogCard";
-
-import { ReactComponent as WriteIcon } from "../../../assets/icons/writing.svg";
 import { Posts } from "../components/Posts";
 
-export const HomeLayout = () => {
+import { ReactComponent as WriteIcon } from "../../../assets/icons/writing.svg";
+import BashNodeIcon from "../../../assets/images/hashnode-icon.svg";
 
+const items = [
+	{
+		label: "My Account",
+		key: "0",
+	},
+	{
+		type: "divider",
+	},
+	{
+		label: "Log out",
+		key: "3",
+	},
+];
+
+export const HomeLayout = () => {
 	return (
 		<>
 			<div className="navbar-container flex 2xl:justify-center 2xl:items-center">
@@ -39,7 +49,9 @@ export const HomeLayout = () => {
 						>
 							Write
 						</Button>
-						<Avatar>U</Avatar>
+						<Dropdown menu={{ items }} trigger={["click"]}>
+							<Avatar className="cursor-pointer">U</Avatar>
+						</Dropdown>
 					</div>
 				</div>
 			</div>
