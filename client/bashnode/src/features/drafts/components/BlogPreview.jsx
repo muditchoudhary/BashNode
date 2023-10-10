@@ -3,6 +3,7 @@ import { Avatar, Button, Dropdown } from "antd";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import he from "he"
 
 import { ReactComponent as BackArrowIcon } from "../../../assets/icons/back-arrow.svg";
 import publishBlog from "../../../assets/images/publish-article.svg";
@@ -98,7 +99,7 @@ export const BlogPreview = () => {
 					</ReactMarkdown> */}
 					<ReactMarkdown
 						remarkPlugins={[remarkGfm]}
-						children={currentBlog["content"]}
+						children={he.decode(currentBlog["content"])}
 						components={{
 							code(props) {
 								const { children, className, node, ...rest } =

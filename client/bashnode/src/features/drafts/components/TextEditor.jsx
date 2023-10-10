@@ -1,6 +1,7 @@
 import { useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { useEffect } from "react";
+import he from "he";
 
 const TITLE_VALIDATION = {
 	required: {
@@ -36,7 +37,7 @@ export const TextEditor = ({ currentBlog }) => {
 
 	useEffect(() => {
 		setValue("title", currentBlog.title);
-		setValue("article", currentBlog.content);
+		setValue("article", he.decode(currentBlog.content));
 	}, [currentBlog.title, currentBlog.content]);
 	return (
 		<>

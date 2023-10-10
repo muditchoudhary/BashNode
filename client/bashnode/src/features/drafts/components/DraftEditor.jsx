@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 
-import { toast } from "react-toastify";
-
 import { useAuthContext } from "../../../hooks/useAuthContext";
 import { Spinner } from "../../../common/Spinner";
 
@@ -53,7 +51,6 @@ export const DraftEditor = () => {
 	if (isDraftLoading || currentDraft === null) {
 		return <Spinner />;
 	} else {
-		console.log(currentDraft);
 		return (
 			<>
 				<EditorContainer currentBlog={currentDraft} />
