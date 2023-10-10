@@ -19,6 +19,7 @@ import { useAuthContext } from "./hooks/useAuthContext";
 import { DraftEditor } from "./features/drafts/components/DraftEditor";
 import { PublishEditor } from "./features/drafts/components/PublishEditor";
 import { BlogLayout } from "./features/blog/layouts/BlogLayout";
+import { BlogPreview } from "./features/drafts/components/BlogPreview";
 
 import "./index.css";
 import "antd/dist/reset.css";
@@ -98,11 +99,17 @@ export const App = () => {
 									element={<PublishEditor />}
 								/>
 							</Route>
+							<Route path="/preview">
+								<Route
+									path=":blogId"
+									element={<BlogPreview />}
+								/>
+							</Route>
 						</Route>
 					</Route>
-					<Route path="/blog" >
-                        <Route path=":blogId" element={<BlogLayout />} />
-                    </Route>
+					<Route path="/blog">
+						<Route path=":blogId" element={<BlogLayout />} />
+					</Route>
 				</Route>
 			</Routes>
 			<ToastContainer />

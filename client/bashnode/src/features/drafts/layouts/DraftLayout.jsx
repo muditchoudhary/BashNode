@@ -38,6 +38,7 @@ export const DraftLayout = () => {
 	const [blogsTitleAndKeys, setBlogsTitleAndKeys] = useState([]);
 	const [isBlogsTitleLoading, setIsBlogsTitleLoading] = useState(false);
 	const [currentSelectedBlogKey, setCurrentSelectedBlogKey] = useState(null);
+	const [isPreviewWindow, setIsPreviewWindow] = useState(false);
 
 	const [currentDraft, setCurrentDraft] = useState(null);
 	const [currentPublished, setCurrentPublished] = useState(null);
@@ -52,7 +53,7 @@ export const DraftLayout = () => {
 	// const navigate = useNavigate();
 
 	const { user } = useAuthContext();
-    
+
 	const { handleSaveDraft, handlePublishUpdate, isBlogFetchingOrSaving } =
 		useFetchOrSaveBlog();
 
@@ -180,6 +181,9 @@ export const DraftLayout = () => {
 								onPublishUpdate={onPublishUpdate}
 								isDraftWindow={isDraftWindow}
 								isBlogFetchingOrSaving={isBlogFetchingOrSaving}
+								currentSelectedBlogKey={currentSelectedBlogKey}
+								setIsPreviewWindow={setIsPreviewWindow}
+								isPreviewWindow={isPreviewWindow}
 							/>
 						</ConfigProvider>
 						<FormProvider {...methods}>
@@ -191,6 +195,7 @@ export const DraftLayout = () => {
 									currentPublished,
 									setCurrentSelectedBlogKey,
 									setIsDraftWindow,
+                                    isDraftWindow
 								}}
 							/>
 						</FormProvider>

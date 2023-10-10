@@ -1,5 +1,6 @@
 import { Button, Space } from "antd";
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 
 import { ReactComponent as DrawerIcon } from "../../../assets/icons/sidebar-drawer.svg";
 
@@ -8,8 +9,12 @@ export const EditorToolbar = ({
 	onSave,
 	onPublishUpdate,
 	isDraftWindow,
-    isBlogFetchingOrSaving,
+	isBlogFetchingOrSaving,
+	currentSelectedBlogKey,
+	setIsPreviewWindow,
+	isPreviewWindow,
 }) => {
+	const navigate = useNavigate();
 	return (
 		<div className="editor-toolbar flex justify-between p-3">
 			<Button
@@ -20,17 +25,48 @@ export const EditorToolbar = ({
 			></Button>
 
 			{!isDraftWindow && (
-				<Button type="primary" shape="round" onClick={onPublishUpdate} disabled={isBlogFetchingOrSaving}>
+				<Button
+					type="primary"
+					shape="round"
+					onClick={onPublishUpdate}
+					disabled={isBlogFetchingOrSaving}
+				>
 					Update
 				</Button>
 			)}
 
 			{isDraftWindow && (
 				<Space>
-					<Button type="primary" shape="round" onClick={onSave} disabled={isBlogFetchingOrSaving}>
+					<Button
+						type="primary"
+						shape="round"
+						onClick={() => {
+							if (isPreviewWindow) {
+								navigate(`/drafts/${currentSelectedBlogKey}`);
+								setIsPreviewWindow(false);
+							} else {
+								navigate(
+									`/preview/${currentSelectedBlogKey}`
+								);
+								setIsPreviewWindow(true);
+							}
+						}}
+					>
+						{isPreviewWindow ? "Edit" : "Preview"}
+					</Button>
+					<Button
+						type="primary"
+						shape="round"
+						onClick={onSave}
+						disabled={isBlogFetchingOrSaving}
+					>
 						Save
 					</Button>
-					<Button type="primary" shape="round" disabled={isBlogFetchingOrSaving}>
+					<Button
+						type="primary"
+						shape="round"
+						disabled={isBlogFetchingOrSaving}
+					>
 						Publish
 					</Button>
 				</Space>
@@ -43,5 +79,8 @@ EditorToolbar.propTypes = {
 	onSave: PropTypes.func.isRequired,
 	onPublishUpdate: PropTypes.func.isRequired,
 	isDraftWindow: PropTypes.bool.isRequired,
-    isBlogFetchingOrSaving: PropTypes.bool.isRequired,
+	isBlogFetchingOrSaving: PropTypes.bool.isRequired,
+	currentSelectedBlogKey: PropTypes.string.isRequired,
+	setIsPreviewWindow: PropTypes.func.isRequired,
+	isPreviewWindow: PropTypes.bool.isRequired,
 };
