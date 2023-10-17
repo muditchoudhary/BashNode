@@ -9,10 +9,11 @@ export const EditorToolbar = ({
 	onSave,
 	onPublishUpdate,
 	isDraftWindow,
-	isBlogFetchingOrSaving,
+	isBlogFetchingSavingUpdating,
 	currentSelectedBlogKey,
 	setIsPreviewWindow,
 	isPreviewWindow,
+    onDraftPublish
 }) => {
 	const navigate = useNavigate();
 	return (
@@ -25,14 +26,31 @@ export const EditorToolbar = ({
 			></Button>
 
 			{!isDraftWindow && (
-				<Button
-					type="primary"
-					shape="round"
-					onClick={onPublishUpdate}
-					disabled={isBlogFetchingOrSaving}
-				>
-					Update
-				</Button>
+				<Space>
+					<Button
+						type="primary"
+						shape="round"
+						onClick={() => {
+							if (isPreviewWindow) {
+								navigate(`/edit/${currentSelectedBlogKey}`);
+								setIsPreviewWindow(false);
+							} else {
+								navigate(`/preview/${currentSelectedBlogKey}`);
+								setIsPreviewWindow(true);
+							}
+						}}
+					>
+						{isPreviewWindow ? "Edit" : "Preview"}
+					</Button>
+					<Button
+						type="primary"
+						shape="round"
+						onClick={onPublishUpdate}
+						disabled={isBlogFetchingSavingUpdating}
+					>
+						Update
+					</Button>
+				</Space>
 			)}
 
 			{isDraftWindow && (
@@ -45,9 +63,7 @@ export const EditorToolbar = ({
 								navigate(`/drafts/${currentSelectedBlogKey}`);
 								setIsPreviewWindow(false);
 							} else {
-								navigate(
-									`/preview/${currentSelectedBlogKey}`
-								);
+								navigate(`/preview/${currentSelectedBlogKey}`);
 								setIsPreviewWindow(true);
 							}
 						}}
@@ -58,14 +74,15 @@ export const EditorToolbar = ({
 						type="primary"
 						shape="round"
 						onClick={onSave}
-						disabled={isBlogFetchingOrSaving}
+						disabled={isBlogFetchingSavingUpdating}
 					>
 						Save
 					</Button>
 					<Button
 						type="primary"
 						shape="round"
-						disabled={isBlogFetchingOrSaving}
+                        onClick={onDraftPublish}
+						disabled={isBlogFetchingSavingUpdating}
 					>
 						Publish
 					</Button>
@@ -79,8 +96,9 @@ EditorToolbar.propTypes = {
 	onSave: PropTypes.func.isRequired,
 	onPublishUpdate: PropTypes.func.isRequired,
 	isDraftWindow: PropTypes.bool.isRequired,
-	isBlogFetchingOrSaving: PropTypes.bool.isRequired,
+	isBlogFetchingSavingUpdating: PropTypes.bool.isRequired,
 	currentSelectedBlogKey: PropTypes.string.isRequired,
 	setIsPreviewWindow: PropTypes.func.isRequired,
 	isPreviewWindow: PropTypes.bool.isRequired,
+    onDraftPublish: PropTypes.func.isRequired,
 };
