@@ -3,7 +3,7 @@ import { Avatar, Button, Dropdown } from "antd";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import he from "he"
+import he from "he";
 
 import { ReactComponent as BackArrowIcon } from "../../../assets/icons/back-arrow.svg";
 import publishBlog from "../../../assets/images/publish-article.svg";
@@ -25,37 +25,11 @@ const items = [
 export const BlogPreview = () => {
 	const { currentDraft, currentPublished, isDraftWindow } =
 		useOutletContext();
+
 	const currentBlog = isDraftWindow ? currentDraft : currentPublished;
-	console.log(currentDraft);
-	const markdown = `Here is some JavaScript code:
+	const title = currentBlog === null ? "" : currentBlog["title"];
+	const content = currentBlog === null ? "" : currentBlog["content"];
 
-    ~~~js
-    import { Routes, Route, BrowserRouter } from "react-router-dom";
-
-    import { HomePage } from "./pages/HomePage";
-    import { RootLayout } from "./layouts/RootLayout";
-    import { SignInPage } from "./pages/SignInPage";
-    import { DashBoardPage } from "./pages/DashBoardPage";
-    
-    function App() {
-        return (
-            <>
-                <BrowserRouter>
-                    <Routes>
-                        <Route path="/" element={<RootLayout />}>
-                            <Route index element={<HomePage />} />
-                            <Route path="/sign-in" element={<SignInPage />} />
-                            <Route path="/dashboard" element={<DashBoardPage />} />
-                        </Route>
-                    </Routes>
-                </BrowserRouter>
-            </>
-        );
-    }
-    
-    export default App;
-    ~~~
-    `;
 	return (
 		<>
 			<div className="main-blog-preview-container border-2 border-solid border-red-800 w-full mx-auto mt-8">
@@ -78,7 +52,7 @@ export const BlogPreview = () => {
 					/>
 				</div>
 
-				<ReactMarkdown className="py-2 px-4 mt-8 text-center leading-snug">{`# **${currentBlog["title"]}**`}</ReactMarkdown>
+				<ReactMarkdown className="py-2 px-4 mt-8 text-center leading-snug">{`# **${title}**`}</ReactMarkdown>
 				<div className="flex flex-col py-2 px-4 gap-4 mb-8">
 					<div className="flex items-center justify-center gap-4">
 						<Avatar className="flex-[0_0_auto]">U</Avatar>
@@ -99,18 +73,22 @@ export const BlogPreview = () => {
 					</ReactMarkdown> */}
 					<ReactMarkdown
 						remarkPlugins={[remarkGfm]}
-						children={he.decode(currentBlog["content"])}
+						// eslint-disable-next-line react/no-children-prop
+						children={he.decode(content)}
 						components={{
 							code(props) {
-								const { children, className, node, ...rest } =
-									props;
+								// eslint-disable-next-line react/prop-types
+								const { children, className, ...rest } = props;
 								// const codeValue = children;
 								// const match = /~~~(\w+)/.exec(codeValue);
-                                const match = /language-(\w+)/.exec(className || '');
-                                // console.log(match)
+								const match = /language-(\w+)/.exec(
+									className || ""
+								);
+								// console.log(match)
 								return match ? (
 									<SyntaxHighlighter
 										{...rest}
+										// eslint-disable-next-line react/no-children-prop
 										children={String(children).replace(
 											/\n$/,
 											""
