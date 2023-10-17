@@ -4,19 +4,20 @@ import { toast } from "react-toastify";
 import { useAuthContext } from "../../../hooks/useAuthContext";
 
 export const useFetchOrSaveBlog = () => {
-	const [isBlogFetchingOrSaving, setIsBlogFetchingOrSaving] = useState(false);
+	const [isBlogFetchingSavingUpdating, setIsBlogFetchingSavingUpdating] =
+		useState(false);
 
 	const { user } = useAuthContext();
 
-	const makeRequest = async (url, body) => {
+	const makeRequest = async (url, body, method) => {
 		let response;
 		let json;
 		let status;
 		let error;
 		try {
-			setIsBlogFetchingOrSaving(true);
+			setIsBlogFetchingSavingUpdating(true);
 			response = await fetch(url, {
-				method: "POST",
+				method: method,
 				mode: "cors",
 				credentials: "include",
 				headers: {
@@ -29,10 +30,9 @@ export const useFetchOrSaveBlog = () => {
 			json = await response.json();
 			status = response.status;
 		} catch (e) {
-			console.error("Error from makeRequest\n\n", e);
 			error = e;
 		}
-		setIsBlogFetchingOrSaving(false);
+		setIsBlogFetchingSavingUpdating(false);
 		return { json, status, error };
 	};
 
@@ -64,11 +64,11 @@ export const useFetchOrSaveBlog = () => {
 				draftId: draftId,
 				title: title,
 				content: article,
-			}
+			},
+			"PUT"
 		);
 		if (error) {
-			console.error("Error from handleSaveDraft\n\n", error);
-			toast.error("Could not save draft");
+			toast.error("Could not save draft", error);
 		} else {
 			handleServerResponse(status, json, "Draft Saved!!");
 		}
@@ -81,7 +81,8 @@ export const useFetchOrSaveBlog = () => {
 				blogId: publishBlogId,
 				title: title,
 				content: article,
-			}
+			},
+			"PUT"
 		);
 		if (error) {
 			console.error("Error from handlePublishUpdate\n\n", error);
@@ -98,14 +99,34 @@ export const useFetchOrSaveBlog = () => {
 				draftId: draftId,
 				title: title,
 				content: article,
-			}
+			},
+			"POST"
 		);
 
 		if (error) {
-			console.error("Error from handleDraftPublish\n\n", error);
-			toast.error("Could not publish the draft");
-		} else {
-			handleServerResponse(status, json, "Draft Published!!");
+			return {
+				status: -1,
+				errorMessage: `Could not publisht the blog ${error}`,
+			};
+		} else if (json["success"] === false && status === 409) {
+			return {
+				status: status,
+				errorMessage:
+					json.validationErrors[
+						Object.keys(json.validationErrors)[0]
+					]["msg"],
+			};
+		} else if (
+			(json["success"] === false && status === 500) ||
+			status === 404
+		) {
+			return { status: status, errorMessage: json["message"] };
+		} else if (json["success"] === true && status === 200) {
+			return {
+				status: status,
+				publishedBlogId: json["blogId"],
+				successMessage: json["message"],
+			};
 		}
 	};
 
@@ -113,6 +134,6 @@ export const useFetchOrSaveBlog = () => {
 		handleSaveDraft,
 		handlePublishUpdate,
 		handleDraftPublish,
-		isBlogFetchingOrSaving,
+		isBlogFetchingSavingUpdating,
 	};
 };

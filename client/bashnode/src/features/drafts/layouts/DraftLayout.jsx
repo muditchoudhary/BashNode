@@ -50,12 +50,17 @@ export const DraftLayout = () => {
 	const methods = useForm({
 		mode: "onSubmit",
 	});
-	// const navigate = useNavigate();
+
+	const navigate = useNavigate();
 
 	const { user } = useAuthContext();
 
-	const { handleSaveDraft, handlePublishUpdate, isBlogFetchingOrSaving } =
-		useFetchOrSaveBlog();
+	const {
+		handleSaveDraft,
+		handlePublishUpdate,
+		handleDraftPublish,
+		isBlogFetchingSavingUpdating,
+	} = useFetchOrSaveBlog();
 
 	const onSave = methods.handleSubmit(
 		async (data) => {
@@ -77,6 +82,41 @@ export const DraftLayout = () => {
 			handlePublishUpdate(currentPublished._id, data.title, data.article);
 		},
 		(error) => {
+			toast.error(error[Object.keys(error)[0]]["message"]);
+		}
+	);
+
+	const onDraftPublish = methods.handleSubmit(
+		async (data) => {
+			const response = await handleDraftPublish(
+				currentDraft._id,
+				data.title,
+				data.article
+			);
+			console.log(response);
+			if (response["status"] === -1) {
+				toast.error(response["errorMessage"]);
+				return;
+			} else if (response["status"] === 409) {
+				toast.error(response["errorMessage"]);
+				return;
+			} else if (
+				response["status"] === 500 ||
+				response["status"] === 404
+			) {
+				toast.error(response["errorMessage"]);
+				return;
+			} else if (response["status"] === 200) {
+				toast.success(response["successMessage"]);
+				setTimeout(() => {
+					navigate(`blog/${response["publishedBlogId"]}`, {
+						replace: true,
+					});
+				}, 1200);
+			}
+		},
+		(error) => {
+			console.log(currentDraft);
 			toast.error(error[Object.keys(error)[0]]["message"]);
 		}
 	);
@@ -180,10 +220,13 @@ export const DraftLayout = () => {
 								onSave={onSave}
 								onPublishUpdate={onPublishUpdate}
 								isDraftWindow={isDraftWindow}
-								isBlogFetchingOrSaving={isBlogFetchingOrSaving}
+								isBlogFetchingSavingUpdating={
+									isBlogFetchingSavingUpdating
+								}
 								currentSelectedBlogKey={currentSelectedBlogKey}
 								setIsPreviewWindow={setIsPreviewWindow}
 								isPreviewWindow={isPreviewWindow}
+								onDraftPublish={onDraftPublish}
 							/>
 						</ConfigProvider>
 						<FormProvider {...methods}>
@@ -193,9 +236,8 @@ export const DraftLayout = () => {
 									currentDraft,
 									setCurrentPublished,
 									currentPublished,
-									setCurrentSelectedBlogKey,
 									setIsDraftWindow,
-                                    isDraftWindow
+									isDraftWindow,
 								}}
 							/>
 						</FormProvider>
