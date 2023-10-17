@@ -19,6 +19,7 @@ export const loadDraftRoutes = (
 		getPublishedBlogPosts,
 		geTotalPublishedBlogs,
         getSinglePublishedBlog,
+        deleteDraft
 	} = controller();
 	const { saveDraftValidate } = validator();
 
@@ -77,6 +78,9 @@ export const loadDraftRoutes = (
 	);
     router.get("/getsingleBlog/:blogId", (req, res) => {
         getSinglePublishedBlog(req, res, req.user);
+    });
+    router.delete("/draft/delete/", passport.authenticate("jwt", { session: false }), (req, res) => {
+        deleteDraft(req, res, req.user);
     });
 
 	return router;
