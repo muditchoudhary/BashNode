@@ -9,14 +9,18 @@ import { Spinner } from "../../../common/Spinner";
 import { EditorContainer } from "./EditorContainer";
 
 export const PublishEditor = () => {
-	const { setCurrentPublished, currentPublished, setCurrentSelectedBlogKey, setIsDraftWindow } =
-		useOutletContext();
 	const [isBlogLoading, setIsBlogLoading] = useState(false);
 
-	const { publishedBlogId } = useParams();
+	const {
+		setCurrentPublished,
+		currentPublished,
+		setIsDraftWindow,
+		isDraftWindow,
+	} = useOutletContext();
+
 	const { user } = useAuthContext();
 
-	console.log(publishedBlogId);
+	const { publishedBlogId } = useParams();
 
 	useEffect(() => {
 		const fetchPublishedBlogs = async () => {
@@ -36,8 +40,7 @@ export const PublishEditor = () => {
 				if (!ignore) {
 					setIsBlogLoading(false);
 					setCurrentPublished(json);
-					setCurrentSelectedBlogKey(json._id);
-                    setIsDraftWindow(false);
+					setIsDraftWindow(false);
 				}
 			} catch (error) {
 				console.error("Error from PublishEditor\n\n", error);
@@ -45,12 +48,14 @@ export const PublishEditor = () => {
 			}
 		};
 		let ignore = false;
-		fetchPublishedBlogs();
+		if (publishedBlogId !== currentPublished?._id) {
+			fetchPublishedBlogs();
+		}
 
 		return () => {
 			ignore = true;
 		};
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [publishedBlogId]);
 
 	if (isBlogLoading || currentPublished === null) {
@@ -58,7 +63,12 @@ export const PublishEditor = () => {
 	} else {
 		return (
 			<>
-				<EditorContainer currentBlog={currentPublished} />
+				<EditorContainer
+					currentBlog={currentPublished}
+					isDraftWindow={isDraftWindow}
+					setCurrentDraft={null}
+					setCurrentPublished={setCurrentPublished}
+				/>
 			</>
 		);
 	}
