@@ -17,7 +17,6 @@ export const SideDrawer = ({
 	setCurrentSelectedBlogKey,
 	setIsDraftWindow,
 }) => {
-	console.log(currentSelectedBlogKey);
 	const drafts = formatBlogList(
 		blogsTitleAndKeys["drafts"],
 		<PageIcon className=" w-4 " />
