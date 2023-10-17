@@ -10,7 +10,12 @@ export const DraftEditor = () => {
 	const [isDraftLoading, setIsDraftLoading] = useState(false);
 
 	const { user } = useAuthContext();
-	const { setCurrentDraft, currentDraft, setCurrentSelectedBlogKey, setIsDraftWindow } = useOutletContext();
+	const {
+		setCurrentDraft,
+		currentDraft,
+		setIsDraftWindow,
+		isDraftWindow,
+	} = useOutletContext();
 
 	const { draftId } = useParams();
 
@@ -32,15 +37,16 @@ export const DraftEditor = () => {
 				if (!ignore) {
 					setIsDraftLoading(false);
 					setCurrentDraft(json);
-                    setCurrentSelectedBlogKey(json._id);
-                    setIsDraftWindow(true);
+					setIsDraftWindow(true);
 				}
 			} catch (error) {
 				console.error("Error from DraftEditor\n\n", error);
 			}
 		};
 		let ignore = false;
-		fetchDraft();
+		if (draftId !== currentDraft?._id) {
+			fetchDraft();
+		}
 
 		return () => {
 			ignore = true;
@@ -53,7 +59,11 @@ export const DraftEditor = () => {
 	} else {
 		return (
 			<>
-				<EditorContainer currentBlog={currentDraft} />
+				<EditorContainer
+					currentBlog={currentDraft}
+					isDraftWindow={isDraftWindow}
+					setCurrentDraft={setCurrentDraft}
+				/>
 			</>
 		);
 	}
