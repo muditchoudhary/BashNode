@@ -60,6 +60,8 @@ export const DraftLayout = () => {
 		handlePublishUpdate,
 		handleDraftPublish,
 		isBlogFetchingSavingUpdating,
+		handleBlogDelete,
+		fetchBlogsTitleAndKeys,
 	} = useFetchOrSaveBlog();
 
 	const onSave = methods.handleSubmit(
@@ -121,6 +123,100 @@ export const DraftLayout = () => {
 		}
 	);
 
+	const deleteDraftFromSideDrawer = (prevState, draftId) => {
+		const newState = prevState.drafts.filter((draft) => {
+			if (draft._id !== draftId) {
+				return draft;
+			}
+		});
+		return { ...prevState, drafts: newState };
+	};
+
+	const deletePublishedFromSideDrawer = (prevState, publishedId) => {
+		const newState = prevState.publishedBlogs.filter((published) => {
+			if (published._id !== publishedId) {
+				return published;
+			}
+		});
+		return { ...prevState, publishedBlogs: newState };
+	};
+
+	const hasMoreDrafts = (blogsTitleAndKeys) => {
+		return blogsTitleAndKeys.drafts.length > 0;
+	};
+
+	const hasMorePublishedBlogs = (blogsTitleAndKeys) => {
+		return blogsTitleAndKeys.publishedBlogs.length > 0;
+	};
+
+	const navigateToDraft = async (newState) => {
+		if (hasMoreDrafts(newState)) {
+			setCurrentSelectedBlogKey(newState.drafts[0]["_id"]);
+			navigate(`/drafts/${newState.drafts[0]["_id"]}`);
+		} else {
+			const fetchedTitleAndKeys = await fetchBlogsTitleAndKeys();
+			setBlogsTitleAndKeys(fetchedTitleAndKeys);
+			navigate(`/drafts/${fetchedTitleAndKeys.drafts[0]["_id"]}`);
+		}
+	};
+
+	const onDeleteBlog = async (blogId, isDraft) => {
+		console.log(blogId, isDraft);
+		console.log(blogsTitleAndKeys);
+		if (!window.confirm("Are you sure you want to delete this blog?")) {
+			return;
+		}
+
+		let response;
+
+		if (isDraft) {
+			response = await handleBlogDelete(
+				blogId,
+				"http://localhost:3000/blog/draft/delete"
+			);
+		} else {
+			response = await handleBlogDelete(
+				blogId,
+				"http://localhost:3000/blog/publish/delete"
+			);
+		}
+
+		switch (response["status"]) {
+			case -1:
+				toast.error(response["errorMessage"]);
+				break;
+			case 404 || 500:
+				toast.error(response["errorMessage"]);
+				break;
+			case 200:
+				toast.success(response["successMessage"]);
+				if (isDraft) {
+					const newState = deleteDraftFromSideDrawer(
+						blogsTitleAndKeys,
+						blogId
+					);
+					setBlogsTitleAndKeys(newState);
+					navigateToDraft(newState);
+				} else {
+					const newState = deletePublishedFromSideDrawer(
+						blogsTitleAndKeys,
+						blogId
+					);
+					if (hasMorePublishedBlogs(newState)) {
+						setCurrentSelectedBlogKey(
+							newState.publishedBlogs[0]["_id"]
+						);
+						navigate(`/edit/${newState.publishedBlogs[0]["_id"]}`);
+					} else {
+						navigateToDraft(newState);
+					}
+				}
+		}
+	};
+
+	/**
+	 * To update the title of the menu item in the side drawer
+	 */
 	const updateSideDrawerMenuItemTitle = (
 		currentMenuItemKey,
 		newTitle,
@@ -170,9 +266,12 @@ export const DraftLayout = () => {
 				);
 				const json = await response.json();
 				if (!ingnore) {
+					const fetchedTitleAndKeys = json["titleAndKeys"];
 					setIsBlogsTitleLoading(false);
-					setBlogsTitleAndKeys(json);
-					setCurrentSelectedBlogKey(json["drafts"][0]["_id"]);
+					setBlogsTitleAndKeys(fetchedTitleAndKeys);
+					setCurrentSelectedBlogKey(
+						fetchedTitleAndKeys["drafts"][0]["_id"]
+					);
 				}
 			} catch (error) {
 				console.error("Error from DraftLayout\n\n", error);
@@ -227,6 +326,7 @@ export const DraftLayout = () => {
 								setIsPreviewWindow={setIsPreviewWindow}
 								isPreviewWindow={isPreviewWindow}
 								onDraftPublish={onDraftPublish}
+								onDeleteBlog={onDeleteBlog}
 							/>
 						</ConfigProvider>
 						<FormProvider {...methods}>

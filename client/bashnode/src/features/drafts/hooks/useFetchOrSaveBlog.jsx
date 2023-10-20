@@ -130,10 +130,66 @@ export const useFetchOrSaveBlog = () => {
 		}
 	};
 
+	const handleBlogDelete = async (blogId, url) => {
+		const { json, status, error } = await makeRequest(
+			url,
+			{
+				blogId: blogId,
+			},
+			"DELETE"
+		);
+		if (error) {
+			console.error(error);
+			return {
+				status: -1,
+				errorMessage: `Could not delete. Something went wrong\n\n${error}`,
+			};
+		} else if (
+			(json["success"] === false && status === 404) ||
+			status === 500
+		) {
+			return {
+				status: status,
+				errorMessage: json["message"],
+			};
+		} else if (json["success"] === true && status === 200) {
+			return {
+				status: status,
+				successMessage: json["message"],
+			};
+		}
+	};
+
+	const fetchBlogsTitleAndKeys = async () => {
+		const { json, status, error } = await makeRequest(
+			"http://localhost:3000/blog/getBlogsTitlesAndKeys",
+			"",
+			"GET"
+		);
+		if (error) {
+			return {
+				status: -1,
+				errorMessage: `Could not fetch. Something went wrong\n\n${error}`,
+			};
+		} else if (json["success"] === false && status === 500) {
+			return {
+				status: status,
+				errorMessage: json["message"],
+			};
+		} else if (json["success"] === true && status === 200) {
+			return {
+				status: status,
+				titleAndKeys: json["titleAndKeys"],
+			};
+		}
+	};
+
 	return {
 		handleSaveDraft,
 		handlePublishUpdate,
 		handleDraftPublish,
 		isBlogFetchingSavingUpdating,
+		handleBlogDelete,
+		fetchBlogsTitleAndKeys,
 	};
 };

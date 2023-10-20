@@ -18,8 +18,10 @@ export const loadDraftRoutes = (
 		publishDraft,
 		getPublishedBlogPosts,
 		geTotalPublishedBlogs,
-        getSinglePublishedBlog,
-        deleteDraft
+		getSinglePublishedBlog,
+		deleteDraft,
+		deletePublishedBlog,
+		testDrafts,
 	} = controller();
 	const { saveDraftValidate } = validator();
 
@@ -64,24 +66,36 @@ export const loadDraftRoutes = (
 			publishDraft(req, res, req.user);
 		}
 	);
-	router.get(
-		"/published/blogs",
+	router.get("/published/blogs", (req, res) => {
+		getPublishedBlogPosts(req, res, req.user);
+	});
+	router.get("/totalPublishedBlogs", (req, res) => {
+		geTotalPublishedBlogs(req, res, req.user);
+	});
+	router.get("/getsingleBlog/:blogId", (req, res) => {
+		getSinglePublishedBlog(req, res, req.user);
+	});
+	router.delete(
+		"/draft/delete/",
+		passport.authenticate("jwt", { session: false }),
 		(req, res) => {
-			getPublishedBlogPosts(req, res, req.user);
+			deleteDraft(req, res, req.user);
 		}
 	);
-	router.get(
-		"/totalPublishedBlogs",
+	router.delete(
+		"/publish/delete",
+		passport.authenticate("jwt", { session: false }),
 		(req, res) => {
-			geTotalPublishedBlogs(req, res, req.user);
+			deletePublishedBlog(req, res, req.user);
 		}
 	);
-    router.get("/getsingleBlog/:blogId", (req, res) => {
-        getSinglePublishedBlog(req, res, req.user);
-    });
-    router.delete("/draft/delete/", passport.authenticate("jwt", { session: false }), (req, res) => {
-        deleteDraft(req, res, req.user);
-    });
+	router.post(
+		"/fill/draft",
+		passport.authenticate("jwt", { session: false }),
+		(req, res) => {
+			testDrafts(req, res, req.user);
+		}
+	);
 
 	return router;
 };
