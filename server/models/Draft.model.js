@@ -27,6 +27,10 @@ const DraftSchema = new Schema({
 		type: Date,
 		default: Date.now,
 	},
+	cover_img: {
+		type: String,
+		default: "",
+	},
 });
 
 export const DraftModel = await blogsDB.model("Draft", DraftSchema);

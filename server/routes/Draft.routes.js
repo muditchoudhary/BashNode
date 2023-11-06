@@ -1,8 +1,20 @@
 import express from "express";
 import passport from "passport";
+import multer from "multer";
 
 import { draftValidation } from "../validators/Draft.validation.js";
 import { DraftController } from "../controllers/Draft.controller.js";
+import { fileValidation } from "../validators/File.validation.js";
+
+const fileValidator = fileValidation();
+const { validateCoverImg } = fileValidator;
+
+const upload = multer({
+	fileFilter: validateCoverImg,
+	limits: {
+		fileSize: 10 * 1024 * 1024,
+	},
+});
 
 export const loadDraftRoutes = (
 	controller = DraftController,
@@ -23,6 +35,7 @@ export const loadDraftRoutes = (
 		deletePublishedBlog,
 		testDrafts,
 	} = controller();
+
 	const { saveDraftValidate } = validator();
 
 	router.get(
@@ -44,13 +57,37 @@ export const loadDraftRoutes = (
 			getPublishedBlogs(req, res, req.user);
 		}
 	);
-	router.post(
+	router.put(
 		"/draft/save",
 		passport.authenticate("jwt", { session: false }),
+		(req, res, next) => {
+			upload.single("coverImg")(req, res, function (err) {
+				if (err instanceof multer.MulterError) {
+					return res
+						.status(400)
+						.json({ success: false, message: err.message });
+				} else if (err) {
+					// If the error is not an instance of multer.MulterError, it must be an error thrown by the validator.
+					// If the err.message is undefined, it means that the error was from Internal server.
+					// else the error was from the validator
+					return err.message
+						? res.status(400).json({
+								success: false,
+								message: err.message,
+						  })
+						: res.status(500).json({
+								success: false,
+								message: "Internal server error.",
+						  });
+				}
+
+				next();
+			});
+		},
 		saveDraftValidate(),
 		(req, res) => saveDraft(req, res, req.user)
 	);
-	router.post(
+	router.put(
 		"/publish/update",
 		passport.authenticate("jwt", { session: false }),
 		saveDraftValidate(),
