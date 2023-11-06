@@ -13,7 +13,7 @@ export const draftValidation = () => {
 						"Title is too short (minimum is 20 characters)"
 					);
 				}
-				if (value.length > 300) {
+				if (value.length >= 300) {
 					throw new Error(
 						"Title is too long (maximum is 300 characters)"
 					);
@@ -28,12 +28,12 @@ export const draftValidation = () => {
 			.withMessage("Article must not be blank")
 			.escape()
 			.custom((value) => {
-				if (value.length < 20) {
+				if (value.length < 300) {
 					throw new Error(
-						"Article is too short (minimum is 20 characters)"
+						"Article is too short (minimum is 300 characters)"
 					);
 				}
-				if (value.length > 20000) {
+				if (value.length >= 20000) {
 					throw new Error(
 						"Article is too long (maximum is 20000 characters)"
 					);

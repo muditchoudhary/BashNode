@@ -15,6 +15,8 @@ export const DraftEditor = () => {
 		currentDraft,
 		setIsDraftWindow,
 		isDraftWindow,
+		coverImg,
+        setCoverImg,
 	} = useOutletContext();
 
 	const { draftId } = useParams();
@@ -38,6 +40,7 @@ export const DraftEditor = () => {
 					setIsDraftLoading(false);
 					setCurrentDraft(json);
 					setIsDraftWindow(true);
+                    setCoverImg(json["cover_img"]);
 				}
 			} catch (error) {
 				console.error("Error from DraftEditor\n\n", error);
@@ -63,6 +66,8 @@ export const DraftEditor = () => {
 					currentBlog={currentDraft}
 					isDraftWindow={isDraftWindow}
 					setCurrentDraft={setCurrentDraft}
+					coverImg={coverImg}
+                    setCoverImg={setCoverImg}
 				/>
 			</>
 		);

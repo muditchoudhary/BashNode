@@ -47,6 +47,8 @@ export const DraftLayout = () => {
 
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+	const [coverImg, setCoverImg] = useState(null);
+
 	const methods = useForm({
 		mode: "onSubmit",
 	});
@@ -67,7 +69,30 @@ export const DraftLayout = () => {
 	const onSave = methods.handleSubmit(
 		async (data) => {
 			updateSideDrawerMenuItemTitle(currentDraft._id, data.title, true);
-			handleSaveDraft(currentDraft._id, data.title, data.article);
+			const response = await handleSaveDraft(
+				currentDraft._id,
+				data.title,
+				data.article,
+				typeof coverImg === "string" ? null : coverImg
+			);
+
+			switch (response["status"]) {
+				case -1:
+					toast.error(response["errorMessage"]);
+					break;
+				case 409:
+					toast.error(response["errorMessage"]);
+					break;
+				case 500:
+					toast.error(response["errorMessage"]);
+					break;
+				case 400:
+					toast.error(response["errorMessage"]);
+					break;
+				case 200:
+					toast.success(response["successMessage"]);
+					break;
+			}
 		},
 		(error) => {
 			toast.error(error[Object.keys(error)[0]]["message"]);
@@ -81,9 +106,29 @@ export const DraftLayout = () => {
 				data.title,
 				false
 			);
-			handlePublishUpdate(currentPublished._id, data.title, data.article);
+			const response = await handlePublishUpdate(
+				currentPublished._id,
+				data.title,
+				data.article
+			);
+
+			switch (response["status"]) {
+				case -1:
+					toast.error(response["errorMessage"]);
+					break;
+				case 409:
+					toast.error(response["errorMessage"]);
+					break;
+				case 500:
+					toast.error(response["errorMessage"]);
+					break;
+				case 200:
+					toast.success(response["successMessage"]);
+					break;
+			}
 		},
 		(error) => {
+			console.log(currentPublished);
 			toast.error(error[Object.keys(error)[0]]["message"]);
 		}
 	);
@@ -95,7 +140,6 @@ export const DraftLayout = () => {
 				data.title,
 				data.article
 			);
-			console.log(response);
 			if (response["status"] === -1) {
 				toast.error(response["errorMessage"]);
 				return;
@@ -161,8 +205,6 @@ export const DraftLayout = () => {
 	};
 
 	const onDeleteBlog = async (blogId, isDraft) => {
-		console.log(blogId, isDraft);
-		console.log(blogsTitleAndKeys);
 		if (!window.confirm("Are you sure you want to delete this blog?")) {
 			return;
 		}
@@ -202,6 +244,7 @@ export const DraftLayout = () => {
 						blogsTitleAndKeys,
 						blogId
 					);
+					setBlogsTitleAndKeys(newState);
 					if (hasMorePublishedBlogs(newState)) {
 						setCurrentSelectedBlogKey(
 							newState.publishedBlogs[0]["_id"]
@@ -272,6 +315,9 @@ export const DraftLayout = () => {
 					setCurrentSelectedBlogKey(
 						fetchedTitleAndKeys["drafts"][0]["_id"]
 					);
+					navigate(
+						`/drafts/${fetchedTitleAndKeys["drafts"][0]["_id"]}`
+					);
 				}
 			} catch (error) {
 				console.error("Error from DraftLayout\n\n", error);
@@ -338,6 +384,8 @@ export const DraftLayout = () => {
 									currentPublished,
 									setIsDraftWindow,
 									isDraftWindow,
+									coverImg,
+									setCoverImg,
 								}}
 							/>
 						</FormProvider>

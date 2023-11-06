@@ -21,10 +21,11 @@ export const useFetchOrSaveBlog = () => {
 				mode: "cors",
 				credentials: "include",
 				headers: {
-					"Content-Type": "application/json",
+					// "Content-Type": "application/json",
 					Authorization: `Bearer ${user.token}`,
 				},
-				body: JSON.stringify(body),
+				// body: JSON.stringify(body),
+				body: body,
 			});
 
 			json = await response.json();
@@ -57,20 +58,40 @@ export const useFetchOrSaveBlog = () => {
 		}
 	};
 
-	const handleSaveDraft = async (draftId, title, article) => {
+	const handleSaveDraft = async (draftId, title, article, coverImg) => {
+		const formData = new FormData();
+		formData.append("draftId", draftId);
+		formData.append("title", title);
+		formData.append("content", article);
+		formData.append("coverImg", coverImg);
+
 		const { json, status, error } = await makeRequest(
 			"http://localhost:3000/blog/draft/save",
-			{
-				draftId: draftId,
-				title: title,
-				content: article,
-			},
-			"PUT"
+			formData,
+			"PUT",
+			true
 		);
 		if (error) {
-			toast.error("Could not save draft", error);
-		} else {
-			handleServerResponse(status, json, "Draft Saved!!");
+			return {
+				status: -1,
+				errorMessage: `Could not save draft ${error}`,
+			};
+		} else if (json["success"] === false && status === 409) {
+			return {
+				status: status,
+				errorMessage:
+					json.validationErrors[
+						Object.keys(json.validationErrors)[0]
+					]["msg"],
+			};
+		} else if (
+			(json["success"] === false && status === 500) ||
+			status === 400
+		) {
+			console.log("t");
+			return { status: status, errorMessage: json["message"] };
+		} else if (json["success"] === true && status === 200) {
+			return { status: status, successMessage: json["message"] };
 		}
 	};
 
@@ -85,10 +106,28 @@ export const useFetchOrSaveBlog = () => {
 			"PUT"
 		);
 		if (error) {
-			console.error("Error from handlePublishUpdate\n\n", error);
-			toast.error("Could not update the blog");
-		} else {
-			handleServerResponse(status, json, "Blog Updated!!");
+			return {
+				status: -1,
+				errorMessage: `Could not update the blog ${error}`,
+			};
+		} else if (json["success"] === false && status === 409) {
+			return {
+				status: status,
+				errorMessage:
+					json.validationErrors[
+						Object.keys(json.validationErrors)[0]
+					]["msg"],
+			};
+		} else if (json["success"] === false && status === 500) {
+			return {
+				status: status,
+				errorMessage: json["message"],
+			};
+		} else if (json["success"] === true && status === 200) {
+			return {
+				status: status,
+				successMessage: json["message"],
+			};
 		}
 	};
 

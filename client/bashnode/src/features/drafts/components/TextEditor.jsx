@@ -27,8 +27,8 @@ const ARTICLE_VALIDATION = {
 		message: "Article is too long (maximum is 20000 characters)",
 	},
 	minLength: {
-		value: 20,
-		message: "Article is too short (minimum is 20 characters)",
+		value: 300,
+		message: "Article is too short (minimum is 300 characters)",
 	},
 };
 
