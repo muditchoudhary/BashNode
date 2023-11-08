@@ -1,9 +1,12 @@
 import { useState } from "react";
 
 import { useAuthContext } from "../../../hooks/useAuthContext";
+import { SERVER_RESPONSES } from "../../../globalConstants/constants";
+import { FETCH_STATUS } from "../../../globalConstants/constants";
+
+const SIGN_UP_URL = "http://localhost:3000/auth/sign-up";
 
 export const useSignUp = () => {
-	const [serverErrors, setServerErrors] = useState(null);
 	const [validationErrors, setValidationErrors] = useState(null);
 	const [isLoading, setIsLoading] = useState(null);
 	const [isAuthSuccessfull, setIsAuthSuccessfull] = useState(false);
@@ -14,8 +17,8 @@ export const useSignUp = () => {
 		setIsLoading(true);
 		let response;
 		try {
-			response = await fetch("http://localhost:3000/auth/sign-up", {
-				method: "POST",
+			response = await fetch(SIGN_UP_URL, {
+				method: "POSE",
 				mode: "cors",
 				credentials: "include",
 				headers: {
@@ -31,30 +34,37 @@ export const useSignUp = () => {
 			const json = await response.json();
 
 			switch (response.status) {
-				case 200:
-					localStorage.setItem("user", JSON.stringify(json));
-					dispatch({ type: "LOGIN", payload: json });
+				case SERVER_RESPONSES.OK:
+					localStorage.setItem("user", JSON.stringify(json["token"]));
+					dispatch({ type: "LOGIN", payload: json["token"] });
 					setIsLoading(false);
 					setIsAuthSuccessfull(true);
-					break;
-				// Validation issues
-				case 409:
+					return {
+						status: SERVER_RESPONSES.OK,
+					};
+				case SERVER_RESPONSES.VALIDATION_CONFLICT:
 					setIsLoading(false);
 					setValidationErrors(json.validationErrors);
 					setIsAuthSuccessfull(false);
-					break;
-				// Internal server errors
-				case 500:
-					setServerErrors(json.message);
+					return {
+						status: SERVER_RESPONSES.VALIDATION_CONFLICT,
+					};
+				case SERVER_RESPONSES.INTERNAL_SERVER_ERROR:
 					setIsLoading(false);
 					setIsAuthSuccessfull(false);
-					break;
+					return {
+						status: SERVER_RESPONSES.INTERNAL_SERVER_ERROR,
+						errorMessage: json["message"],
+					};
 			}
 		} catch (error) {
-			console.error("Error from useSignUp\n\n", error.message);
+			console.error(error.message);
 			setIsLoading(false);
 			setIsAuthSuccessfull(false);
-			setServerErrors(error.message);
+			return {
+				status: FETCH_STATUS.FETCH_FAIL,
+				errorMessage: `Could not sign in due to ${error.message}`,
+			};
 		}
 	};
 
@@ -62,8 +72,6 @@ export const useSignUp = () => {
 		handleAuth,
 		isLoading,
 		validationErrors,
-		serverErrors,
-		setServerErrors,
 		isAuthSuccessfull,
 	};
 };

@@ -1,27 +1,24 @@
 import { FormProvider, useForm } from "react-hook-form";
 import { Button, Divider } from "antd";
-import {
-	Link,
-	useOutletContext,
-	useNavigate,
-	useLocation,
-} from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 import { Input } from "../components/Input";
+import { SERVER_RESPONSES } from "../../../globalConstants/constants";
+import { FETCH_STATUS } from "../../../globalConstants/constants";
+import { useSignIn } from "../hooks/useSignIn";
 
 export const SignIn = () => {
-	const { handleAuth, isLoading, validationErrors, isAuthSuccessfull } =
-		useOutletContext();
+	const { handleAuth, isLoading, isAuthSuccessfull, validationErrors } =
+		useSignIn();
 
 	const methods = useForm({
 		mode: "onBlur",
 	});
-
 	const { setError } = methods;
 
 	const navigate = useNavigate();
-
 	const location = useLocation();
 
 	const from = location?.state?.from?.pathname || "/";
@@ -41,17 +38,23 @@ export const SignIn = () => {
 	}, [validationErrors, isAuthSuccessfull]);
 
 	const onSubmit = methods.handleSubmit(async (data) => {
-		await handleAuth(data.email, data.password);
+		const response = await handleAuth(data.email, data.password);
+		switch (response["status"]) {
+			case SERVER_RESPONSES.INTERNAL_SERVER_ERROR:
+			case FETCH_STATUS.FETCH_FAIL:
+				toast.error(response["errorMessage"]);
+				break;
+		}
 	});
 
 	return (
 		<>
-			<div className="sign-in-form-container flex flex-col flex-[2_2_auto] justify-center">
+			<div className="flex flex-col">
 				<FormProvider {...methods}>
 					<form
 						onSubmit={(e) => e.preventDefault()}
 						noValidate
-						className="flex flex-col mx-7 mt-4"
+						className="flex flex-col mt-4"
 					>
 						<Input
 							id="email"
@@ -74,7 +77,7 @@ export const SignIn = () => {
 						<Input
 							id="password"
 							label="Password"
-							type="text"
+							type="password"
 							validationRules={{
 								required: {
 									value: true,
@@ -100,7 +103,7 @@ export const SignIn = () => {
 				<Divider plain>OR</Divider>
 				<Link
 					to={"/sign-up"}
-					className=" self-center text-xl text-black hover:text-electric-blue focus:text-electric-blue active:text-electric-blue visited:text-black pb-3 2xl:text-3xl"
+					className=" self-center text-xl font-roboto text-black hover:text-electric-blue focus:text-electric-blue active:text-electric-blue visited:text-black pb-3 2xl:text-3xl"
 				>
 					Sign Up to create a new account
 				</Link>

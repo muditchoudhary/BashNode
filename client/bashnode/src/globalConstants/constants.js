@@ -1,0 +1,9 @@
+export const SERVER_RESPONSES = {
+	OK: 200,
+	VALIDATION_CONFLICT: 409,
+	INTERNAL_SERVER_ERROR: 500,
+};
+
+export const FETCH_STATUS = {
+	FETCH_FAIL: -1,
+};

@@ -88,7 +88,6 @@ export const useFetchOrSaveBlog = () => {
 			(json["success"] === false && status === 500) ||
 			status === 400
 		) {
-			console.log("t");
 			return { status: status, errorMessage: json["message"] };
 		} else if (json["success"] === true && status === 200) {
 			return { status: status, successMessage: json["message"] };

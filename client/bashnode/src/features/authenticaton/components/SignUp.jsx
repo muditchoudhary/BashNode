@@ -1,20 +1,20 @@
 import { FormProvider, useForm } from "react-hook-form";
 import { Button, Divider } from "antd";
-import {
-	Link,
-	useNavigate,
-	useOutletContext,
-	useLocation,
-} from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 import { Input } from "../components/Input";
+import { SERVER_RESPONSES } from "../../../globalConstants/constants";
+import { FETCH_STATUS } from "../../../globalConstants/constants";
+import { useSignUp } from "../hooks/useSignUp";
 
 import "../styles/form.css";
 
+
 export const SignUp = () => {
 	const { handleAuth, isLoading, validationErrors, isAuthSuccessfull } =
-		useOutletContext();
+		useSignUp();
 
 	const methods = useForm({
 		mode: "onBlur",
@@ -25,16 +25,7 @@ export const SignUp = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 
-	let from;
-
-	if (
-		location &&
-		location.state &&
-		location.state.from &&
-		location.state.from.pathname
-	) {
-		from = location.state.from.pathname;
-	} else from = "/";
+	const from = location?.state?.from?.pathname || "/";
 
 	useEffect(() => {
 		if (validationErrors) {
@@ -51,17 +42,23 @@ export const SignUp = () => {
 	}, [validationErrors, isAuthSuccessfull]);
 
 	const onSubmit = methods.handleSubmit(async (data) => {
-		await handleAuth(data.username, data.email, data.password);
+		const response = await handleAuth(data.username, data.email, data.password);
+        switch (response["status"]) {
+            case SERVER_RESPONSES.INTERNAL_SERVER_ERROR:
+            case FETCH_STATUS.FETCH_FAIL:
+                toast.error(response["errorMessage"]);
+                break;
+        }
 	});
 
 	return (
 		<>
-			<div className="sign-up-form-container flex flex-col flex-[2_2_auto] justify-center ">
+			<div className="flex flex-col">
 				<FormProvider {...methods}>
 					<form
 						onSubmit={(e) => e.preventDefault()}
 						noValidate
-						className="flex flex-col mx-7 mt-4"
+						className="flex flex-col mt-4"
 					>
 						<Input
 							id="username"
@@ -101,7 +98,7 @@ export const SignUp = () => {
 						<Input
 							id="password"
 							label="Password"
-							type="text"
+							type="password"
 							validationRules={{
 								required: {
 									value: true,
@@ -129,7 +126,7 @@ export const SignUp = () => {
 						<Input
 							id="confirmPassword"
 							label="Confirm Password"
-							type="text"
+							type="password"
 							validationRules={{
 								required: {
 									value: true,
@@ -158,9 +155,9 @@ export const SignUp = () => {
 					<Divider plain>OR</Divider>
 					<Link
 						to={"/sign-in"}
-						className=" self-center text-xl text-black hover:text-electric-blue focus:text-electric-blue active:text-electric-blue visited:text-black pb-3 2xl:text-3xl"
+						className=" self-center text-xl font-roboto text-black hover:text-electric-blue focus:text-electric-blue active:text-electric-blue visited:text-black pb-3 2xl:text-3xl"
 					>
-						Sign In to create a new account
+						Sign In to your existing account
 					</Link>
 				</FormProvider>
 			</div>
