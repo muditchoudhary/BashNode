@@ -19,7 +19,12 @@ export default {
 			screens: {
 				desktop: "1440px",
 			},
+			fontFamily: {
+				nunito: ["Nunito Sans", "sans-serif"],
+				lato: ["Lato", "sans-serif"],
+				roboto: ["Roboto", "sans-serif"],
+			},
 		},
 	},
-	plugins: ['@tailwindcss/line-clamp'],
+	plugins: ["@tailwindcss/line-clamp"],
 };
