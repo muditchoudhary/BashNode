@@ -11,21 +11,17 @@ export const AuthLayout = () => {
 
 	return (
 		<>
-			<div className="lg:flex min-h-screen max-h-screen px-4 py-2">
-				<div className="flex flex-col">
-					<p className="text-electric-blue text-4xl font-bold font-nunito justify-self-center self-center flex items-center py-3 2xl:text-6xl m-0 ">
+			<div className="lg:flex min-h-screen max-h-screen px-4 py-2 4k:px-14 4k:py-7">
+				<div className="flex flex-col lg:w-1/3">
+					<p className="text-electric-blue text-2xl xl:text-4xl 4k:text-5xl font-bold font-nunito justify-self-center self-center flex items-center py-3 4k:py-6 2xl:text-4xl m-0 ">
 						BashNode
 					</p>
 					<ConfigProvider
 						theme={{
 							components: {
-								Button: {
-									fontSize: isLargeScreen ? 30 : 20,
-									controlHeight: isLargeScreen ? 58 : 38,
-								},
 								Divider: {
 									colorSplit: "#757575",
-									fontSize: isLargeScreen ? 30 : 20,
+									fontSize: isLargeScreen ? 18 : 14,
 								},
 							},
 						}}
@@ -33,17 +29,23 @@ export const AuthLayout = () => {
 						<Outlet />
 					</ConfigProvider>
 				</div>
-				<div className="hidden lg:flex lg:flex-col lg:flex-2">
-					<div className="flex flex-col items-center font-black text-xl flex-1 justify-center py-5 2xl:text-3xl ">
-						<p>&quot;Unleash Your Words, Inspire The World&quot;</p>
-						<p>With</p>
-						<p className=" text-electric-blue text">BashNode</p>
+				<div className="hidden lg:flex lg:flex-col lg:w-8/12">
+					<div className="flex flex-col lg:h-1/4 2xl:h-1/5 4k:h-1/6 font-roboto items-center font-black text-xl justify-evenly 2xl:text-2xl 4k:text-3xl">
+						<p className="m-0">
+							&quot;Unleash Your Words, Inspire The World&quot;
+						</p>
+						<p className="m-0">With</p>
+						<p className=" m-0 text-electric-blue text-2xl 2xl:text-3xl 4k:text-5xl">
+							BashNode
+						</p>
 					</div>
-					<img
-						src={publishArticleImg}
-						alt="A girl publishing an article"
-						className=" w-2/3 h-auto self-center flex-2"
-					/>
+					<div className=" lg:h-3/4 2xl:h-4/5 4k:h-5/6">
+						<img
+							src={publishArticleImg}
+							alt="A girl publishing an article"
+							className="w-full h-full object-cover"
+						/>
+					</div>
 				</div>
 			</div>
 		</>

@@ -21,7 +21,7 @@ export const Input = (props) => {
 			<div className="flex flex-col mt-3 2xl:mt-9">
 				<label
 					htmlFor={props.id}
-					className="text-xl font-roboto my-2 text-midnight-slate 2xl:text-3xl"
+					className=" text-base xl:text-xl font-roboto my-2 4k:text-2xl text-midnight-slate 4k:my-4"
 				>
 					*{props.label}
 				</label>
@@ -64,7 +64,7 @@ const InputError = (props) => {
 	return (
 		<>
 			<motion.p
-				className=" flex items-center font-roboto gap-1 text-base my-2 font-semibold text-red-500 2xl:text-xl"
+				className=" flex items-center font-roboto gap-1 text-base my-2 4k:my-4 font-semibold text-red-500 4k:text-2xl"
 				{...frame_error}
 			>
 				<MdError />

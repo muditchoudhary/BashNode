@@ -103,7 +103,7 @@ export const SignIn = () => {
 				<Divider plain>OR</Divider>
 				<Link
 					to={"/sign-up"}
-					className=" self-center text-xl font-roboto text-black hover:text-electric-blue focus:text-electric-blue active:text-electric-blue visited:text-black pb-3 2xl:text-3xl"
+					className=" self-center text-base xl:text-xl font-roboto text-black hover:text-electric-blue focus:text-electric-blue active:text-electric-blue visited:text-black pb-3 4k:text-2xl"
 				>
 					Sign Up to create a new account
 				</Link>
