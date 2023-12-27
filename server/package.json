@@ -6,7 +6,8 @@
 	"scripts": {
 		"start": "node app.js",
 		"devstart": "nodemon  app.js",
-		"debug": "nodemon --inspect app.js"
+		"debug": "nodemon --inspect app.js",
+		"build": "npm i"
 	},
 	"dependencies": {
 		"@azure/identity": "^3.3.1",
@@ -31,7 +32,6 @@
 		"passport-jwt": "^4.0.1",
 		"passport-local": "^1.0.0",
 		"passport-local-mongoose": "^8.0.0",
-		"pug": "^3.0.2",
 		"uuid": "^9.0.1"
 	},
 	"devDependencies": {
