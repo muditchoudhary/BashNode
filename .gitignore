@@ -2,3 +2,4 @@
 /server/.env
 /client/bashnode/node_modules
 /client/bashnode/build
+/server/dist
