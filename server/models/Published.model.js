@@ -27,6 +27,18 @@ const PublishedBlogSchema = new Schema({
 		type: Date,
 		default: Date.now,
 	},
+	author_name: {
+		type: String,
+		default: "",
+	},
+	author_avatar: {
+		type: String,
+		default: "",
+	},
+	likes: {
+		type: Number,
+		default: 0,
+	},
 	cover_img: {
 		type: String,
 		default: "",

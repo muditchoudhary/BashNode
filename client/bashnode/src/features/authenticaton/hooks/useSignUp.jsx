@@ -18,7 +18,7 @@ export const useSignUp = () => {
 		let response;
 		try {
 			response = await fetch(SIGN_UP_URL, {
-				method: "POSE",
+				method: "POST",
 				mode: "cors",
 				credentials: "include",
 				headers: {

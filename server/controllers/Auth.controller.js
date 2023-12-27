@@ -10,10 +10,6 @@ import { SALT_ROUNDS } from "../globalConstants/constants.js";
 
 dotenv.config();
 
-const STATUS_VALIDATION_CONFLICT = 409;
-const STATUS_OK = 200;
-const STATUS_INTERNAL_SERVER_ERROR = 500;
-
 export const AuthController = (userModel = UserModel) => {
 	/**
 	 * If no validation errors, create a new user and save it to the database.
@@ -125,12 +121,12 @@ export const AuthController = (userModel = UserModel) => {
 			if (!user) {
 				return done(null, false, { message: "User not found" });
 			}
-			return done(null, user);
+			return done(null, user._id);
 		} catch (err) {
 			console.error(err);
 			return done(err);
 		}
 	};
 
-	return { authenticateUser, handleSignIn, handleSignUp };
+	return { authenticateUser, handleSignIn, handleSignUp};
 };

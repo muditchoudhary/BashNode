@@ -10,12 +10,16 @@ export const EditorContainer = ({
 	setCurrentPublished,
 	coverImg,
     setCoverImg,
+    isBlogActionLoading,
+    setIsCoverImgNull,
 }) => {
 	return (
-		<div className="editor-container gap-2 p-2 borer-2 flex flex-col flex-1">
+		<div className="gap-2 px-2 py-2 flex flex-col flex-1">
 			<ActionBar
 				coverImg={coverImg}
                 setCoverImg={setCoverImg}
+                isBlogActionLoading={isBlogActionLoading}
+                setIsCoverImgNull={setIsCoverImgNull}
 			/>
 			<TextEditor
 				currentBlog={currentBlog}
@@ -31,6 +35,8 @@ EditorContainer.propTypes = {
 	isDraftWindow: PropTypes.bool.isRequired,
 	setCurrentDraft: PropTypes.func,
 	setCurrentPublished: PropTypes.func,
-	coverImg: PropTypes.object,
+    coverImg: PropTypes.any,
     setCoverImg: PropTypes.func.isRequired,
+    isBlogActionLoading: PropTypes.bool.isRequired,
+    setIsCoverImgNull: PropTypes.func.isRequired,
 };

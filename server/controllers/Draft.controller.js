@@ -1,26 +1,30 @@
 import { validationResult, matchedData } from "express-validator";
+import fetch from "node-fetch";
+import sizeOf from "image-size";
 
 import { DraftModel } from "../models/Draft.model.js";
-import { PublishedBlogModel } from "../models/Published.model.js";
 import { UserModel } from "../models/User.model.js";
+import { PublishedBlogModel } from "../models/Published.model.js";
 import { coverImgsAzureFunctions } from "../azureFunctions/coverImages.azure.functions.js";
 import { getFileNameFromUrl } from "./helpers/getFileNameFromUrl.js";
+import { SERVER_RESPONSES } from "../globalConstants/constants.js";
+
+const DRAFTS_CONTAINER_NAME = "drafts-cover-images";
+const PUBLISHED_CONTAINER_NAME = "published-cover-images";
 
 export const DraftController = (
+	userModel = UserModel,
 	draftModel = DraftModel,
-	publishedBlogModel = PublishedBlogModel,
-	userModel = UserModel
+	publishedBlogModel = PublishedBlogModel
 ) => {
-	const DRAFTS_CONTAINER_NAME = "drafts-cover-images";
-	const PUBLISHED_CONTAINER_NAME = "published-cover-images";
+	const { saveImgToContainer } = coverImgsAzureFunctions();
 
 	const saveDraft = async (req, res, user) => {
-		const { saveImgToContainer, deleteAndSaveImgToContainer } =
-			coverImgsAzureFunctions();
 		try {
 			const validationErrors = validationResult(req);
+
 			if (!validationErrors.isEmpty()) {
-				return res.status(409).json({
+				return res.status(SERVER_RESPONSES.VALIDATION_CONFLICT).json({
 					success: false,
 					validationErrors: validationErrors.mapped(),
 				});
@@ -28,98 +32,87 @@ export const DraftController = (
 
 			const draftId = req.body.draftId;
 			const data = matchedData(req);
-			// User has uploaded a cover image
+			const isCoverImgNullInFrontend = req.body.isCoverImgNull;
+
+			const storedCoverImgURL = await getStoredCoverImgURL(user, draftId);
+
+			let blobImageURL = storedCoverImgURL;
+
+			// If user uploaded a new cover image
 			if (req.file !== undefined) {
-				const { cover_img: storedCoverImgURL } = await draftModel
-					.findOne({
-						user_id: user._id,
-						_id: draftId,
-					})
-					.select({ cover_img: 1 });
-
-				let blobImageURL = storedCoverImgURL;
-				const storedCoverImg = getFileNameFromUrl(storedCoverImgURL);
-
-				if (storedCoverImg === "") {
-					blobImageURL = await saveImgToContainer(
-						req.file,
-						DRAFTS_CONTAINER_NAME
-					);
-				} else if (storedCoverImg !== req.file.originalname) {
-					blobImageURL = await deleteAndSaveImgToContainer(
-						req.file,
-						DRAFTS_CONTAINER_NAME,
-						storedCoverImg
-					);
-				}
-				await draftModel.updateOne(
-					{ user_id: user._id, _id: draftId },
-					{
-						title: data.title,
-						content: data.content,
-						updated_at: Date.now(),
-						cover_img: blobImageURL,
-					}
+				blobImageURL = await saveImgToContainer(
+					req.file,
+					DRAFTS_CONTAINER_NAME
 				);
-			} else {
-				await draftModel.updateOne(
-					{ user_id: user._id, _id: draftId },
-					{
-						title: data.title,
-						content: data.content,
-						updated_at: Date.now(),
-					}
-				);
+			} else if (
+				storedCoverImgURL !== "" &&
+				isCoverImgNullInFrontend === "true"
+			) {
+				// User did not upload a new cover image nor in frontend any cover image applied , but there is an existing cover image in db
+				blobImageURL = "";
 			}
 
+			await updateDraftModel(user, draftId, {
+				title: data.title,
+				content: data.content,
+				updated_at: Date.now(),
+				cover_img: blobImageURL,
+			});
+
 			return res
-				.status(200)
+				.status(SERVER_RESPONSES.OK)
 				.json({ success: true, message: "Draft saved" });
 		} catch (error) {
 			console.error(error);
 			return res
-				.status(500)
+				.status(SERVER_RESPONSES.INTERNAL_SERVER_ERROR)
 				.json({ success: false, message: "Internal Server Error" });
 		}
-		// const { cover_img } = await draftModel
-		// 	.findOne({
-		// 		user_id: user._id,
-		// 		_id: draftId,
-		// 	})
-		// 	.select({ cover_img: 1 });
-		// return res.status(200).json(cover_img);
+	};
+
+	const getStoredCoverImgURL = async (user, draftId) => {
+		const { cover_img: storedCoverImgURL } = await draftModel
+			.findOne({ _id: draftId })
+			.select({ cover_img: 1 });
+
+		return storedCoverImgURL;
+	};
+
+	const updateDraftModel = async (user, draftId, updateData) => {
+		await draftModel.updateOne({ _id: draftId }, updateData);
 	};
 
 	const getTitlesAndKeys = async (req, res, user) => {
 		try {
 			let drafts = await draftModel
-				.find({ user_id: user._id })
+				.find({ user_id: user })
 				.select({ _id: 1, title: 1 });
-
+			// If no drafts are found, create a new draft
 			if (drafts.length === 0) {
 				let draft = new draftModel({
-					user_id: user._id,
+					user_id: user,
 				});
 				const result = await draft.save();
 
 				drafts = await draftModel
-					.find({ user_id: user._id })
+					.find({ user_id: user })
 					.select({ _id: 1, title: 1 });
 			}
 
 			const publishedBlogs = await publishedBlogModel
 				.find({
-					user_id: user._id,
+					user_id: user,
 				})
 				.select({ _id: 1, title: 1 });
 
-			return res.status(200).json({
+			return res.status(SERVER_RESPONSES.OK).json({
 				success: true,
 				titleAndKeys: { drafts, publishedBlogs },
 			});
 		} catch (error) {
+			console.error(error);
 			return res
-				.status(500)
+				.status(SERVER_RESPONSES.INTERNAL_SERVER_ERROR)
 				.json({ success: false, message: "Internal Server Error" });
 		}
 	};
@@ -128,92 +121,144 @@ export const DraftController = (
 		try {
 			const draftId = req.params.draftId;
 			const draft = await draftModel.findOne({
-				user_id: user._id,
 				_id: draftId,
 			});
-			return res.status(200).json(draft);
-		} catch (error) {
-			console.error("Error in getDraft:\n\n", error);
-		}
-	};
-
-	const getPublishedBlogs = async (req, res, user) => {
-		try {
-			const blogId = req.params.blogId;
-			const publishedBlog = await publishedBlogModel.findOne({
-				user_id: user._id,
-				_id: blogId,
-			});
-			return res.status(200).json(publishedBlog);
-		} catch (error) {
-			console.error("Error in getDraft:\n\n", error);
-		}
-	};
-
-	const updatePublished = async (req, res, user) => {
-		try {
-			const validationErrors = validationResult(req);
-			if (!validationErrors.isEmpty()) {
-				return res.status(409).json({
+			if (!draft) {
+				return res.status(SERVER_RESPONSES.BAD_REQUEST).json({
 					success: false,
-					validationErrors: validationErrors.mapped(),
+					message: "Draft Not Found",
 				});
 			}
-
-			const blogId = req.body.blogId;
-			const data = matchedData(req);
-
-			const result = await publishedBlogModel.updateOne(
-				{ user_id: user._id, _id: blogId },
-				{
-					title: data.title,
-					content: data.content,
-					updated_at: Date.now(),
-				}
-			);
-
-			return res
-				.status(200)
-				.json({ success: true, message: "Blog updated" });
+			return res.status(SERVER_RESPONSES.OK).json({
+				success: true,
+				blog: draft,
+			});
 		} catch (error) {
 			console.error(error);
-			return res
-				.status(500)
-				.json({ success: false, message: "Internal Server Error" });
+			return res.status(SERVER_RESPONSES.INTERNAL_SERVER_ERROR).json({
+				success: false,
+				message: "Internal Server Error",
+			});
 		}
+	};
+
+	// Function to download the image from the URL using fetch
+	async function downloadImage(url) {
+		const response = await fetch(url);
+		if (!response.ok) {
+			throw new Error(
+				`Failed to download image. Status: ${response.status}`
+			);
+		}
+
+		const buffer = await response.arrayBuffer();
+
+		// Convert to Node.js Buffer explicitly
+		return Buffer.from(buffer);
+	}
+
+	// Function to determine the image mimetype
+	const getImageMimetype = (imageBuffer) => {
+		const dimensions = sizeOf(imageBuffer);
+		switch (dimensions.type) {
+			case "jpg":
+				return "image/jpg";
+			case "png":
+				return "image/png";
+			case "jpeg":
+				return "image/jpeg";
+			default:
+				throw new Error("Unsupported image type");
+		}
+	};
+	const getUserNameAndAvtarByUserId = async (userId) => {
+		const { username, user_avatar } = await userModel
+			.findOne({
+				_id: userId,
+			})
+			.select({ username: 1, user_avatar: 1 });
+
+		return { username, user_avatar };
 	};
 
 	const publishDraft = async (req, res, user) => {
 		try {
 			const validationErrors = validationResult(req);
+
 			if (!validationErrors.isEmpty()) {
-				return res.status(409).json({
+				return res.status(SERVER_RESPONSES.VALIDATION_CONFLICT).json({
 					success: false,
 					validationErrors: validationErrors.mapped(),
 				});
 			}
+			const isCoverImgNullInFrontend = req.body.isCoverImgNull;
 			const draftId = req.body.draftId;
 			const data = matchedData(req);
+			const storedCoverImgURL = await getStoredCoverImgURL(user, draftId);
+			const storedCoverImg = getFileNameFromUrl(storedCoverImgURL);
+			const { username, user_avatar } = await getUserNameAndAvtarByUserId(
+				user
+			);
 
+			// Delete the draft
 			const result = await draftModel.findOneAndDelete({
-				user_id: user._id,
 				_id: draftId,
 			});
+
 			if (!result) {
-				return res
-					.status(404)
-					.json({ success: false, message: "Draft Not Found" });
+				return res.status(SERVER_RESPONSES.BAD_REQUEST).json({
+					success: false,
+					message: "Draft Not Found",
+				});
+			}
+			let blobImageURL = storedCoverImgURL;
+
+			// If user uploaded a new cover image
+			if (req.file !== undefined) {
+				blobImageURL = await saveImgToContainer(
+					req.file,
+					PUBLISHED_CONTAINER_NAME
+				);
+				// the user has has not upload a cover image but already a cover image is applied from db.
+			} else if (
+				storedCoverImgURL !== "" &&
+				isCoverImgNullInFrontend === "false"
+			) {
+				const blobName = storedCoverImg;
+				const imageData = await downloadImage(storedCoverImgURL);
+				const imageMimeType = getImageMimetype(imageData);
+
+				blobImageURL = await saveImgToContainer(
+					{
+						buffer: imageData,
+						size: imageData.length,
+						mimetype: imageMimeType,
+						originalname: blobName,
+					},
+					PUBLISHED_CONTAINER_NAME
+				);
+			} else if (
+				storedCoverImgURL !== "" &&
+				isCoverImgNullInFrontend === "true"
+			) {
+				blobImageURL = "";
 			}
 
 			const publishBlog = new publishedBlogModel({
 				title: data.title,
 				content: data.content,
-				user_id: user._id,
-				created_at: Date.now(),
+				user_id: user,
+				published_at: Date.now(),
 				updated_at: Date.now(),
+				author_name: username,
+				author_avatar: user_avatar,
+				likes: 0,
+				cover_img: blobImageURL,
 			});
+
 			await publishBlog.save();
-			return res.status(200).json({
+
+			return res.status(SERVER_RESPONSES.OK).json({
 				success: true,
 				message: "Draft Published",
 				blogId: publishBlog._id,
@@ -221,18 +266,23 @@ export const DraftController = (
 		} catch (error) {
 			console.error(error);
 			return res
-				.status(500)
+				.status(SERVER_RESPONSES.INTERNAL_SERVER_ERROR)
 				.json({ success: false, message: "Internal Server Error" });
 		}
 		// const demoContent =
 		// 	"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ut libero urna. Morbi in purus bibendum, posuere libero nec, vehicula libero. Curabitur hendrerit risus eget lectus tempus, id facilisis orci sollicitudin. Curabitur condimentum metus vitae urna ultrices dictum. Integer et nisl at ex suscipit varius. Aliquam erat volutpat. Vestibulum in mauris sed ligula volutpat accumsan.\nVestibulum ut sapien vitae nisi volutpat consectetur. Vivamus nec lacus sapien. Etiam vitae vestibulum elit. Proin ut lacus vel augue congue elementum. Sed ut nulla a odio ultrices vulputate. Duis volutpat, sapien in sollicitudin bibendum, libero elit posuere neque, vel pellentesque tellus augue a libero. Phasellus rhoncus ante et nulla cursus, ut viverra nisl tristique. Sed non purus et tortor cursus efficitur.\nSed vel risus a velit vulputate commodo. Aliquam erat volutpat. Vestibulum non quam eu eros scelerisque ullamcorper a non arcu. Vestibulum lobortis auctor quam, in finibus elit laoreet nec. In hac habitasse platea dictumst. Nulla ut libero ut felis cursus tempus. Integer at dui in quam convallis cursus. Sed in metus a quam laoreet vestibulum. Pellentesque hendrerit, ex non malesuada venenatis, massa lacus pulvinar libero, vel facilisis nisi purus vitae quam. Nam congue augue sed sapien congue lacinia. Sed sagittis auctor lectus id varius.\nPhasellus scelerisque sem nec orci condimentum aliquet. Integer bibendum id sapien ut malesuada. Ut dapibus purus ut lacinia iaculis. Ut id dui vitae nisl accumsan pellentesque. Aenean euismod, ipsum id venenatis semper, odio justo iaculis mi, vitae tincidunt urna tellus a dui. Vestibulum a justo ac odio convallis efficitur eu in neque. Aliquam volutpat ex vitae posuere facilisis. Duis aliquet sagittis vulputate. Sed tincidunt diam et neque pharetra, vel consequat nulla convallis. Integer ac metus vel sem scelerisque tincidunt vel vitae eros. Vestibulum iaculis, elit eu lacinia efficitur, ligula ex suscipit nibh, eu dignissim quam urna nec tellus. Nam varius tempor mauris, a finibus risus vestibulum non.\nPellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Sed ac arcu ut mauris tincidunt congue. Nam ullamcorper ultrices arcu, at eleifend velit luctus non. Sed semper, purus vel venenatis tincidunt, metus arcu vulputate lectus, a fringilla quam urna non ante. Integer nec accumsan ex, at elementum justo. Quisque eu elit in libero sagittis tincidunt. Donec vulputate bibendum ligula, non dapibus metus dignissim ut. Vestibulum vehicula bibendum odio, id cursus ex tincidunt non. Ut finibus metus id libero pulvinar, vel ultrices dui egestas. Ut semper, mi a convallis posuere, tortor sapien tristique arcu, eu commodo sem dui sit amet ipsum. Fusce convallis, quam et tempor venenatis, nibh ex feugiat ex, a tincidunt mi felis nec arcu.\nMaecenas eu nulla non arcu rhoncus cursus. Curabitur ut quam in massa bibendum efficitur. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut ut metus a quam sagittis iaculis nec in sem. Nunc eu nibh vel urna vestibulum convallis. Nam vel lacus vitae purus pharetra malesuada. Aenean tincidunt metus vel odio facilisis laoreet. Duis vel odio sed est venenatis scelerisque. Nam posuere tortor a dui sagittis, eu scelerisque sapien lobortis. Duis vulputate mi non tincidunt tristique. Sed sed nisl vitae velit pharetra sollicitudin et eu lectus. Nullam venenatis tincidunt venenatis. Nulla eu velit sem. Sed eu sagittis sem. Integer at sapien orci. Suspendisse eu semper odio, et efficitur turpis. Vivamus sollicitudin augue a venenatis fermentum.";
 		// try {
+		// 	const { username, user_avatar } = await getUserNameAndAvtarByUserId(
+		// 		user
+		// 	);
 		// 	let testBlog = [];
-		// 	for (let i = 0; i < 50; i++) {
+		// 	for (let i = 0; i < 30; i++) {
 		// 		const blog = {
-		// 			title: `Hello world this is the Test Blog ${i + 1}. And I hope it long`,
+		// 			title: `Hello world this is the Test Blog ${
+		// 				i + 1
+		// 			}. And I hope it long`,
 		// 			content: demoContent,
-		// 			// user_id: mongoose.Types.ObjectId(user._id),
+		// 			// user_id: mongoose.Types.ObjectId(user),
 		// 		};
 		// 		testBlog.push(blog);
 		// 	}
@@ -240,8 +290,10 @@ export const DraftController = (
 		// 		const publishBlog = new publishedBlogModel({
 		// 			title: blog.title,
 		// 			content: blog.content,
-		// 			user_id: user._id,
-		// 			created_at: Date.now(),
+		// 			user_id: user,
+		// 			author_name: username,
+		// 			author_avatar: user_avatar,
+		// 			published_at: Date.now(),
 		// 			updated_at: Date.now(),
 		// 		});
 		// 		await publishBlog.save();
@@ -254,96 +306,47 @@ export const DraftController = (
 		// }
 	};
 
-	const getPublishedBlogPosts = async (req, res) => {
-		const { page = 1, limit = 10 } = req.query;
-		try {
-			const publishedBlogs = await publishedBlogModel
-				.find()
-				.limit(limit * 1)
-				.skip((page - 1) * limit)
-				.exec();
-
-			const count = await publishedBlogModel.countDocuments();
-
-			return res.status(200).json({
-				publishedBlogs,
-				totalPages: Math.ceil(count / limit),
-				currentPage: page,
-			});
-		} catch (error) {
-			console.error("Error in getPublishedBlogPosts:\n\n", error);
-		}
-	};
-
-	const geTotalPublishedBlogs = async (req, res) => {
-		try {
-			const totalPosts = await publishedBlogModel.find({}).count();
-			return res.status(200).json({ totalPosts });
-		} catch (error) {
-			console.error(
-				"Error in getPublishedBlogsCollectionSize:\n\n",
-				error
-			);
-		}
-	};
-
-	const getSinglePublishedBlog = async (req, res) => {
-		try {
-			const blogId = req.params.blogId;
-			let blog = await publishedBlogModel.findOne({
-				_id: blogId,
-			});
-			const authorName = await userModel
-				.findOne({ _id: blog.user_id })
-				.select({ username: 1 });
-			blog = { ...blog._doc, authorName: authorName.username };
-			console.log(blog);
-			return res.status(200).json({ blog });
-		} catch (error) {
-			console.error("Error in getDraft:\n\n", error);
-		}
-	};
-
 	const deleteDraft = async (req, res, user) => {
 		try {
-			const draftId = req.body.blogId;
+			const draftId = req.params.blogId;
 			const result = await draftModel.findOneAndDelete({
-				user_id: user._id,
 				_id: draftId,
 			});
 			if (!result) {
 				return res
-					.status(404)
+					.status(SERVER_RESPONSES.BAD_REQUEST)
 					.json({ success: false, message: "Draft Not Found" });
 			}
 			return res
-				.status(200)
+				.status(SERVER_RESPONSES.OK)
 				.json({ success: true, message: "Draft Deleted" });
 		} catch (error) {
+			console.error(error);
 			return res
-				.status(500)
+				.status(SERVER_RESPONSES.INTERNAL_SERVER_ERROR)
 				.json({ success: false, message: "Internal Server Error" });
 		}
 	};
 
-	const deletePublishedBlog = async (req, res, user) => {
+	const createNewDraft = async (req, res, user) => {
 		try {
-			const blogId = req.body.blogId;
-			const result = await PublishedBlogModel.findOneAndDelete({
-				user_id: user._id,
-				_id: blogId,
+			const draft = new draftModel({
+				user_id: user,
 			});
-			if (!result) {
-				return res
-					.status(404)
-					.json({ success: false, message: "Blog Not Found" });
-			}
-			return res
-				.status(200)
-				.json({ success: true, message: "Blog Deleted" });
+			const result = await draft.save();
+			return res.status(SERVER_RESPONSES.OK).json({
+				success: true,
+				message: "New Draft Created",
+				draft: {
+                    _id: result._id,
+					title: result.title,
+				},
+			});
 		} catch (error) {
+			console.error(error);
+			console.log(user);
 			return res
-				.status(500)
+				.status(SERVER_RESPONSES.INTERNAL_SERVER_ERROR)
 				.json({ success: false, message: "Internal Server Error" });
 		}
 	};
@@ -367,7 +370,7 @@ export const DraftController = (
 				const draft = new draftModel({
 					title: blog.title,
 					content: blog.content,
-					user_id: user._id,
+					user_id: user,
 					created_at: Date.now(),
 					updated_at: Date.now(),
 				});
@@ -385,14 +388,9 @@ export const DraftController = (
 		getTitlesAndKeys,
 		saveDraft,
 		getDraft,
-		getPublishedBlogs,
-		updatePublished,
 		publishDraft,
-		getPublishedBlogPosts,
-		geTotalPublishedBlogs,
-		getSinglePublishedBlog,
 		deleteDraft,
-		deletePublishedBlog,
 		testDrafts,
+		createNewDraft,
 	};
 };

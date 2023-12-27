@@ -20,6 +20,7 @@ import { DraftEditor } from "./features/drafts/components/DraftEditor";
 import { PublishEditor } from "./features/drafts/components/PublishEditor";
 import { BlogLayout } from "./features/blog/layouts/BlogLayout";
 import { BlogPreview } from "./features/drafts/components/BlogPreview";
+import { UserDashboarLayout } from "./features/dashboard/layouts/UserDashboardLayout";
 
 import "./index.css";
 import "antd/dist/reset.css";
@@ -47,9 +48,6 @@ const AuthRedirect = () => {
 	const { user } = useAuthContext();
 	const location = useLocation();
 	const from = location?.state?.from?.pathname || "/";
-
-	console.log(location);
-	console.log(from);
 
 	if (user === null) return "loading...";
 
@@ -106,6 +104,10 @@ export const App = () => {
 								/>
 							</Route>
 						</Route>
+						<Route
+							path="/dashboard"
+							element={<UserDashboarLayout />}
+						/>
 					</Route>
 					<Route path="/blog">
 						<Route path=":blogId" element={<BlogLayout />} />

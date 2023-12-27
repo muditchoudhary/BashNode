@@ -7,6 +7,8 @@ import cors from "cors";
 
 import { loadAuthRoutes } from "./routes/Auth.routes.js";
 import { loadDraftRoutes } from "./routes/Draft.routes.js";
+import { loadPublishRoutes } from "./routes/Publish.routes.js";
+import { loadUserRoutes } from "./routes/User.routes.js";
 import { AuthController } from "./controllers/Auth.controller.js";
 import { intializePassport } from "./config/passport.config.js";
 
@@ -17,9 +19,12 @@ const PORT = process.env.PORT || 3000;
 
 const AUTH_ROUTE_PREFIX = "/auth";
 const BLOG_ROUTE_PREFIX = "/blog";
+const USER_ROUTE_PREFIX = "/user";
 
 const draftRouter = loadDraftRoutes();
 const authRouther = loadAuthRoutes();
+const publishRouter = loadPublishRoutes();
+const userRouter = loadUserRoutes();
 
 const CORS_OPTIONS = {
 	origin: "http://localhost:5173",
@@ -42,6 +47,8 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(AUTH_ROUTE_PREFIX, authRouther);
 app.use(BLOG_ROUTE_PREFIX, draftRouter);
+app.use(BLOG_ROUTE_PREFIX, publishRouter);
+app.use(USER_ROUTE_PREFIX, userRouter);
 
 app.listen(PORT, () => {
 	console.log(`Server started at port ${PORT}`);

@@ -17,7 +17,7 @@ const reducer = (state, action) => {
 				...state,
 				loading: false,
 				data: [...state.data, ...action.payload.data],
-				currentPage: state.currentPage + 1,
+				currentPage: action.payload.currentPage + 1,
 			};
 		}
 		default:
@@ -50,7 +50,7 @@ export const useLazyLoad = ({ triggerRef, onGrabData, options }) => {
 			});
 			dispatch({
 				type: "onGrabData",
-				payload: { data: data["publishedBlogs"] },
+				payload: { data: data["publishedBlogs"], currentPage: Number(data["currentPage"]) },
 			});
 		}
 	};

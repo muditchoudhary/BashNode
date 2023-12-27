@@ -86,17 +86,17 @@ export const TextEditor = ({
 		<>
 			<form
 				onSubmit={(e) => e.preventDefault()}
-				className="flex flex-col flex-1 px-3"
+				className="flex flex-col flex-1 gap-2"
 			>
 				<textarea
 					{...register("title", { ...TITLE_VALIDATION })}
-					className="text-2xl font-extrabold px-1 py-3 lg:text-5xl leading-snug lg:leading-snug border-none outline-none resize-none"
+					className="text-lg md:text-xl lg:text-2xl 2xl:text-3xl font-roboto font-extrabold px-1 py-3  outline-none resize-none box-border h-[20vh] 2xl:h-[10vh] border-none"
 					placeholder="Article Title..."
 					onChange={debounce(updateTitle, 1000)}
 				></textarea>
 				<textarea
 					{...register("article", { ...ARTICLE_VALIDATION })}
-					className="flex-auto text-xl px-1 py-3 lg:text-3xl leading-tight lg:leading-tight border-none outline-none resize-none"
+					className="text-base md:text-lg lg:text-xl  font-roboto px-1 py-3 outline-none resize-none box-border h-[80vh] 2xl:h-[90vh] border-none"
 					placeholder="Article Content..."
 					onChange={debounce(updateConent, 1000)}
 				></textarea>

@@ -1,60 +1,70 @@
 import { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
-import { useAuthContext } from "../../../hooks/useAuthContext";
 import { Spinner } from "../../../common/Spinner";
 
 import { EditorContainer } from "./EditorContainer";
+import { SERVER_RESPONSES } from "../../../globalConstants/constants";
+import { handleResponse } from "../helpers/errorHandler";
+import { useLogout } from "../../authenticaton/hooks/useLogOut";
+
+const GET_DRAFT_URL = "http://localhost:3000/blog/draft/";
 
 export const DraftEditor = () => {
 	const [isDraftLoading, setIsDraftLoading] = useState(false);
 
-	const { user } = useAuthContext();
 	const {
 		setCurrentDraft,
 		currentDraft,
 		setIsDraftWindow,
 		isDraftWindow,
 		coverImg,
-        setCoverImg,
+		setCoverImg,
+		setIsPreviewWindow,
+		isBlogActionLoading,
+		fetchBlogWithId,
+		setIsCoverImgNull,
+		wasDraftWindow,
 	} = useOutletContext();
 
 	const { draftId } = useParams();
+	const { logOut } = useLogout();
 
 	useEffect(() => {
 		const fetchDraft = async () => {
 			setIsDraftLoading(true);
-			let response;
-			try {
-				response = await fetch(
-					`http://localhost:3000/blog/draft/${draftId}`,
-					{
-						method: "GET",
-						headers: {
-							Authorization: `Bearer ${user.token}`,
-						},
-					}
-				);
-				const json = await response.json();
-				if (!ignore) {
+			const response = await fetchBlogWithId(
+				`${GET_DRAFT_URL}${draftId}`
+			);
+			if (!ignore) {
+				if (response.status === SERVER_RESPONSES.OK) {
 					setIsDraftLoading(false);
-					setCurrentDraft(json);
+					setCurrentDraft(response.blog);
 					setIsDraftWindow(true);
-                    setCoverImg(json["cover_img"]);
+					setCoverImg(response.blog["cover_img"]);
+					if (response.blog["cover_img"] !== "") {
+						setIsCoverImgNull(false);
+					}
+				} else if (response.status === SERVER_RESPONSES.UNAUTHORIZED) {
+					toast.error("Token expired. Please login again");
+                    logOut();
+				} else {
+					handleResponse(response);
 				}
-			} catch (error) {
-				console.error("Error from DraftEditor\n\n", error);
 			}
 		};
 		let ignore = false;
-		if (draftId !== currentDraft?._id) {
+		// If we switch from publish to draft or vice versa, we need to fetch the data again
+		// that is why wasDraftWindow is used to know if earlier window is publised window or draft window
+
+		if (draftId !== currentDraft?._id || wasDraftWindow === false) {
 			fetchDraft();
 		}
 
 		return () => {
 			ignore = true;
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [draftId]);
 
 	if (isDraftLoading || currentDraft === null) {
@@ -67,7 +77,9 @@ export const DraftEditor = () => {
 					isDraftWindow={isDraftWindow}
 					setCurrentDraft={setCurrentDraft}
 					coverImg={coverImg}
-                    setCoverImg={setCoverImg}
+					setCoverImg={setCoverImg}
+					isBlogActionLoading={isBlogActionLoading}
+					setIsCoverImgNull={setIsCoverImgNull}
 				/>
 			</>
 		);

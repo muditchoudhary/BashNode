@@ -1,61 +1,68 @@
 import { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
-
 import { toast } from "react-toastify";
 
-import { useAuthContext } from "../../../hooks/useAuthContext";
 import { Spinner } from "../../../common/Spinner";
 
 import { EditorContainer } from "./EditorContainer";
+import { SERVER_RESPONSES } from "../../../globalConstants/constants";
+import { handleResponse } from "../helpers/errorHandler";
+import { useLogout } from "../../authenticaton/hooks/useLogOut";
+
+const GET_PUBLISH_BLOG_URL = "http://localhost:3000/blog/publish/";
 
 export const PublishEditor = () => {
 	const [isBlogLoading, setIsBlogLoading] = useState(false);
-
 	const {
-		setCurrentPublished,
+        setCurrentPublished,
 		currentPublished,
 		setIsDraftWindow,
 		isDraftWindow,
+		coverImg,
+		setCoverImg,
+		setIsPreviewWindow,
+		isBlogActionLoading,
+		fetchBlogWithId,
+		setIsCoverImgNull,
+        wasDraftWindow,
 	} = useOutletContext();
 
-	const { user } = useAuthContext();
-
 	const { publishedBlogId } = useParams();
+    const { logOut } = useLogout();
 
 	useEffect(() => {
-		const fetchPublishedBlogs = async () => {
+		const fetchPublishedBlog = async () => {
 			setIsBlogLoading(true);
-			let response;
-			try {
-				response = await fetch(
-					`http://localhost:3000/blog/publish/${publishedBlogId}`,
-					{
-						method: "GET",
-						headers: {
-							Authorization: `Bearer ${user.token}`,
-						},
-					}
-				);
-				const json = await response.json();
-				if (!ignore) {
+			const response = await fetchBlogWithId(
+				`${GET_PUBLISH_BLOG_URL}${publishedBlogId}`
+			);
+			if (!ignore) {
+				if (response.status === SERVER_RESPONSES.OK) {
 					setIsBlogLoading(false);
-					setCurrentPublished(json);
+					setCurrentPublished(response.blog);
 					setIsDraftWindow(false);
+					setIsPreviewWindow(false);
+					setCoverImg(response.blog["cover_img"]);
+					if (response.blog["cover_img"] !== "") {
+						setIsCoverImgNull(false);
+					}
+				} else if (response.status === SERVER_RESPONSES.UNAUTHORIZED) {
+                    toast.error("Token expired. Please login again");
+                    logOut();
+                }
+                 else {
+					handleResponse(response);
 				}
-			} catch (error) {
-				console.error("Error from PublishEditor\n\n", error);
-				toast.error("Working fine!");
 			}
 		};
 		let ignore = false;
-		if (publishedBlogId !== currentPublished?._id) {
-			fetchPublishedBlogs();
+		if (publishedBlogId !== currentPublished?._id || wasDraftWindow !== isDraftWindow) {
+			fetchPublishedBlog();
 		}
 
 		return () => {
 			ignore = true;
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [publishedBlogId]);
 
 	if (isBlogLoading || currentPublished === null) {
@@ -68,6 +75,10 @@ export const PublishEditor = () => {
 					isDraftWindow={isDraftWindow}
 					setCurrentDraft={null}
 					setCurrentPublished={setCurrentPublished}
+					coverImg={coverImg}
+					setCoverImg={setCoverImg}
+					isBlogActionLoading={isBlogActionLoading}
+					setIsCoverImgNull={setIsCoverImgNull}
 				/>
 			</>
 		);

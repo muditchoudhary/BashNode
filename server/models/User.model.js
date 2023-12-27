@@ -20,6 +20,14 @@ const UserSchema = new Schema({
 		type: String,
 		required: true,
 	},
+    user_avatar: {
+        type: String,
+        default: "",
+    },
+    liked_blogs: {
+        type: Array,
+        default: [],
+    },
 });
 
 UserSchema.plugin(passportLocalMongoose, { usernameField: "email" });

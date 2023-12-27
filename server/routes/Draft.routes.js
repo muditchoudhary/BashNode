@@ -2,135 +2,99 @@ import express from "express";
 import passport from "passport";
 import multer from "multer";
 
-import { draftValidation } from "../validators/Draft.validation.js";
+import { blogValidation } from "../validators/Blog.validation.js";
 import { DraftController } from "../controllers/Draft.controller.js";
 import { fileValidation } from "../validators/File.validation.js";
+import { MAX_COVER_IMG_SIZE } from "../globalConstants/constants.js";
+import { handleFileUpload } from "./fileOperations.js";
 
-const fileValidator = fileValidation();
-const { validateCoverImg } = fileValidator;
-
-const upload = multer({
-	fileFilter: validateCoverImg,
-	limits: {
-		fileSize: 10 * 1024 * 1024,
-	},
-});
+const SAVE_DRAFT_ROUTE = "/draft/save";
+const GET_BLOGS_TITLES_AND_KEYS_ROUTE = "/getBlogsTitlesAndKeys";
+const GET_DRAFT_ROUTE = "/draft/:draftId";
+const PUBLISH_DRAFT_ROUTE = "/draft/publish";
+const DELETE_DRAFT_ROUTE = "/draft/delete/:blogId";
+const CREATE_NEW_DRAFT_ROUTE = "/draft/create";
 
 export const loadDraftRoutes = (
 	controller = DraftController,
-	validator = draftValidation
+	validator = blogValidation,
+	fileValidator = fileValidation
 ) => {
 	const router = express.Router();
+	const { validateCoverImg } = fileValidator();
 	const {
 		getTitlesAndKeys,
 		saveDraft,
 		getDraft,
-		getPublishedBlogs,
-		updatePublished,
 		publishDraft,
-		getPublishedBlogPosts,
-		geTotalPublishedBlogs,
-		getSinglePublishedBlog,
 		deleteDraft,
-		deletePublishedBlog,
 		testDrafts,
+		createNewDraft,
 	} = controller();
+	const { validateBlogData } = validator();
 
-	const { saveDraftValidate } = validator();
+	const upload = multer({
+		fileFilter: validateCoverImg,
+		limits: {
+			fileSize: MAX_COVER_IMG_SIZE,
+		},
+	});
 
 	router.get(
-		"/getBlogsTitlesAndKeys",
+		GET_BLOGS_TITLES_AND_KEYS_ROUTE,
 		passport.authenticate("jwt", { session: false }),
 		(req, res) => getTitlesAndKeys(req, res, req.user)
 	);
-	router.get(
-		"/draft/:draftId",
+
+	router.post(
+		CREATE_NEW_DRAFT_ROUTE,
 		passport.authenticate("jwt", { session: false }),
 		(req, res) => {
-			getDraft(req, res, req.user);
+			createNewDraft(req, res, req.user);
 		}
 	);
-	router.get(
-		"/publish/:blogId",
-		passport.authenticate("jwt", { session: false }),
-		(req, res) => {
-			getPublishedBlogs(req, res, req.user);
-		}
-	);
+
 	router.put(
-		"/draft/save",
+		SAVE_DRAFT_ROUTE,
 		passport.authenticate("jwt", { session: false }),
 		(req, res, next) => {
-			upload.single("coverImg")(req, res, function (err) {
-				if (err instanceof multer.MulterError) {
-					return res
-						.status(400)
-						.json({ success: false, message: err.message });
-				} else if (err) {
-					// If the error is not an instance of multer.MulterError, it must be an error thrown by the validator.
-					// If the err.message is undefined, it means that the error was from Internal server.
-					// else the error was from the validator
-					return err.message
-						? res.status(400).json({
-								success: false,
-								message: err.message,
-						  })
-						: res.status(500).json({
-								success: false,
-								message: "Internal server error.",
-						  });
-				}
-
-				next();
-			});
+			handleFileUpload(req, res, next, upload, "coverImg");
 		},
-		saveDraftValidate(),
+		validateBlogData(),
 		(req, res) => saveDraft(req, res, req.user)
 	);
-	router.put(
-		"/publish/update",
-		passport.authenticate("jwt", { session: false }),
-		saveDraftValidate(),
-		(req, res) => {
-			updatePublished(req, res, req.user);
-		}
-	);
+
 	router.post(
-		"/draft/publish",
+		PUBLISH_DRAFT_ROUTE,
 		passport.authenticate("jwt", { session: false }),
-		saveDraftValidate(),
-		(req, res) => {
-			publishDraft(req, res, req.user);
-		}
+		(req, res, next) => {
+			handleFileUpload(req, res, next, upload, "coverImg");
+		},
+		validateBlogData(),
+		(req, res) => publishDraft(req, res, req.user)
 	);
-	router.get("/published/blogs", (req, res) => {
-		getPublishedBlogPosts(req, res, req.user);
-	});
-	router.get("/totalPublishedBlogs", (req, res) => {
-		geTotalPublishedBlogs(req, res, req.user);
-	});
-	router.get("/getsingleBlog/:blogId", (req, res) => {
-		getSinglePublishedBlog(req, res, req.user);
-	});
-	router.delete(
-		"/draft/delete/",
-		passport.authenticate("jwt", { session: false }),
-		(req, res) => {
-			deleteDraft(req, res, req.user);
-		}
-	);
-	router.delete(
-		"/publish/delete",
-		passport.authenticate("jwt", { session: false }),
-		(req, res) => {
-			deletePublishedBlog(req, res, req.user);
-		}
-	);
+
 	router.post(
 		"/fill/draft",
 		passport.authenticate("jwt", { session: false }),
 		(req, res) => {
 			testDrafts(req, res, req.user);
+		}
+	);
+
+	router.get(
+		GET_DRAFT_ROUTE,
+		passport.authenticate("jwt", { session: false }),
+		(req, res) => {
+			getDraft(req, res, req.user);
+		}
+	);
+    
+	router.delete(
+		DELETE_DRAFT_ROUTE,
+		passport.authenticate("jwt", { session: false }),
+		(req, res) => {
+			deleteDraft(req, res, req.user);
 		}
 	);
 

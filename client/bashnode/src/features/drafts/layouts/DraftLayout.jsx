@@ -1,14 +1,20 @@
 import { useForm, FormProvider } from "react-hook-form";
-import { ConfigProvider } from "antd";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 import { SideDrawer } from "../components/SideDrawer";
 import { EditorToolbar } from "../components/EditorToolbar";
-import { useFetchOrSaveBlog } from "../hooks/useFetchOrSaveBlog";
-import { useAuthContext } from "../../../hooks/useAuthContext";
+import { useBlogActions } from "../hooks/useBlogActions";
 import { Spinner } from "../../../common/Spinner";
+import { handleResponse } from "../helpers/errorHandler";
+import {
+	updateMenuItemTitleInSideDrawer,
+	removeDraftFromSideDrawer,
+	removePublishedFromSideDrawer,
+} from "../helpers/sideDrawerHelper";
+import { SERVER_RESPONSES } from "../../../globalConstants/constants";
+import { useLogout } from "../../authenticaton/hooks/useLogOut";
 
 // For reference
 // const DEMO_BLOG_DATA = {
@@ -33,157 +39,158 @@ import { Spinner } from "../../../common/Spinner";
 //     "updated_at": "2023-09-23T05:50:48.684Z",
 //     "__v": 0
 // }
+const DRAFT_DELETE_API_URL = "http://localhost:3000/blog/draft/delete";
+const PUBLISH_DELETE_API_URL = "http://localhost:3000/blog/publish/delete";
 
 export const DraftLayout = () => {
 	const [blogsTitleAndKeys, setBlogsTitleAndKeys] = useState([]);
 	const [isBlogsTitleLoading, setIsBlogsTitleLoading] = useState(false);
 	const [currentSelectedBlogKey, setCurrentSelectedBlogKey] = useState(null);
 	const [isPreviewWindow, setIsPreviewWindow] = useState(false);
-
+	const [isDraftWindow, setIsDraftWindow] = useState(true);
 	const [currentDraft, setCurrentDraft] = useState(null);
 	const [currentPublished, setCurrentPublished] = useState(null);
-
-	const [isDraftWindow, setIsDraftWindow] = useState(true);
-
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
 	const [coverImg, setCoverImg] = useState(null);
+	const [isCoverImgNull, setIsCoverImgNull] = useState(true);
+	const [wasDraftWindow, setWasDraftWindow] = useState(true);
 
 	const methods = useForm({
 		mode: "onSubmit",
 	});
 
-	const navigate = useNavigate();
+	const { logOut } = useLogout();
 
-	const { user } = useAuthContext();
+	const navigate = useNavigate();
 
 	const {
 		handleSaveDraft,
 		handlePublishUpdate,
 		handleDraftPublish,
-		isBlogFetchingSavingUpdating,
+		isBlogActionLoading,
 		handleBlogDelete,
 		fetchBlogsTitleAndKeys,
-	} = useFetchOrSaveBlog();
+		fetchBlogWithId,
+		createNewDraft,
+	} = useBlogActions();
 
-	const onSave = methods.handleSubmit(
+	const handleNewDraftButtonClick = async () => {
+		const response = await createNewDraft();
+		if (response["status"] === SERVER_RESPONSES.OK) {
+			setBlogsTitleAndKeys({
+				...blogsTitleAndKeys,
+				drafts: [
+					...blogsTitleAndKeys.drafts,
+					{
+						title: response["draft"]["title"],
+						_id: response["draft"]["_id"],
+					},
+				],
+			});
+			setCurrentSelectedBlogKey(response["draft"]["_id"]);
+			navigate(`/drafts/${response["draft"]["_id"]}`);
+		} else if (response["status"] === SERVER_RESPONSES.UNAUTHORIZED) {
+			toast.error("Token expired. Please login again");
+			logOut();
+		} else {
+			handleResponse(response);
+		}
+	};
+
+	const handleSaveButtonClick = methods.handleSubmit(
 		async (data) => {
-			updateSideDrawerMenuItemTitle(currentDraft._id, data.title, true);
+			// Checking for string because that means the user did not upload an image from fileStorage.
+			// The image url is same as we got from the backend
+			const coverImageObject =
+				typeof coverImg === "string" ? null : coverImg;
+
+			updateMenuItemTitleInSideDrawer(
+				currentDraft._id,
+				data.title,
+				true,
+				setBlogsTitleAndKeys
+			);
 			const response = await handleSaveDraft(
 				currentDraft._id,
 				data.title,
 				data.article,
-				typeof coverImg === "string" ? null : coverImg
+				coverImageObject,
+				isCoverImgNull
 			);
-
-			switch (response["status"]) {
-				case -1:
-					toast.error(response["errorMessage"]);
-					break;
-				case 409:
-					toast.error(response["errorMessage"]);
-					break;
-				case 500:
-					toast.error(response["errorMessage"]);
-					break;
-				case 400:
-					toast.error(response["errorMessage"]);
-					break;
-				case 200:
-					toast.success(response["successMessage"]);
-					break;
+			if (response["status"] === SERVER_RESPONSES.UNAUTHORIZED) {
+				toast.error("Token expired. Please login again");
+				logOut();
+			} else {
+				handleResponse(response);
 			}
 		},
 		(error) => {
-			toast.error(error[Object.keys(error)[0]]["message"]);
+			const validationErrorMsg = error[Object.keys(error)[0]]["message"];
+			toast.error(validationErrorMsg);
 		}
 	);
 
-	const onPublishUpdate = methods.handleSubmit(
+	const handlePublishUpdateClick = methods.handleSubmit(
 		async (data) => {
-			updateSideDrawerMenuItemTitle(
+			updateMenuItemTitleInSideDrawer(
 				currentPublished._id,
 				data.title,
-				false
+				false,
+				setBlogsTitleAndKeys
 			);
+			// Checking for string because that means the user did not upload an image from fileStorage.
+			// The image url is same as we got from the backend
 			const response = await handlePublishUpdate(
 				currentPublished._id,
 				data.title,
-				data.article
+				data.article,
+				typeof coverImg === "string" ? null : coverImg,
+				isCoverImgNull
 			);
-
-			switch (response["status"]) {
-				case -1:
-					toast.error(response["errorMessage"]);
-					break;
-				case 409:
-					toast.error(response["errorMessage"]);
-					break;
-				case 500:
-					toast.error(response["errorMessage"]);
-					break;
-				case 200:
-					toast.success(response["successMessage"]);
-					break;
+			if (response["status"] === SERVER_RESPONSES.UNAUTHORIZED) {
+				toast.error("Token expired. Please login again");
+				logOut();
+			} else {
+				handleResponse(response);
 			}
 		},
 		(error) => {
-			console.log(currentPublished);
-			toast.error(error[Object.keys(error)[0]]["message"]);
+			const validationErrorMsg = error[Object.keys(error)[0]]["message"];
+			toast.error(validationErrorMsg);
 		}
 	);
 
-	const onDraftPublish = methods.handleSubmit(
+	const handleSubmitForDraftPublish = methods.handleSubmit(
 		async (data) => {
+			const DELAY_TO_PUBLISHED_BLOG_IN_MS = 1200;
+
+			// Checking for string because that means the user did not upload an image from fileStorage.
+			// The image url is same as we got from the backend
 			const response = await handleDraftPublish(
 				currentDraft._id,
 				data.title,
-				data.article
+				data.article,
+				typeof coverImg === "string" ? null : coverImg,
+				isCoverImgNull
 			);
-			if (response["status"] === -1) {
-				toast.error(response["errorMessage"]);
-				return;
-			} else if (response["status"] === 409) {
-				toast.error(response["errorMessage"]);
-				return;
-			} else if (
-				response["status"] === 500 ||
-				response["status"] === 404
-			) {
-				toast.error(response["errorMessage"]);
-				return;
-			} else if (response["status"] === 200) {
-				toast.success(response["successMessage"]);
+			if (response["status"] === SERVER_RESPONSES.OK) {
 				setTimeout(() => {
 					navigate(`blog/${response["publishedBlogId"]}`, {
 						replace: true,
 					});
-				}, 1200);
+				}, DELAY_TO_PUBLISHED_BLOG_IN_MS);
+			} else if (response["status"] === SERVER_RESPONSES.UNAUTHORIZED) {
+				toast.error("Token expired. Please login again");
+				logOut();
+			} else {
+				handleResponse(response);
 			}
 		},
 		(error) => {
-			console.log(currentDraft);
-			toast.error(error[Object.keys(error)[0]]["message"]);
+			const validationErrorMsg = error[Object.keys(error)[0]]["message"];
+			toast.error(validationErrorMsg);
 		}
 	);
-
-	const deleteDraftFromSideDrawer = (prevState, draftId) => {
-		const newState = prevState.drafts.filter((draft) => {
-			if (draft._id !== draftId) {
-				return draft;
-			}
-		});
-		return { ...prevState, drafts: newState };
-	};
-
-	const deletePublishedFromSideDrawer = (prevState, publishedId) => {
-		const newState = prevState.publishedBlogs.filter((published) => {
-			if (published._id !== publishedId) {
-				return published;
-			}
-		});
-		return { ...prevState, publishedBlogs: newState };
-	};
 
 	const hasMoreDrafts = (blogsTitleAndKeys) => {
 		return blogsTitleAndKeys.drafts.length > 0;
@@ -194,142 +201,94 @@ export const DraftLayout = () => {
 	};
 
 	const navigateToDraft = async (newState) => {
+		let draftIdToNavigate;
+
 		if (hasMoreDrafts(newState)) {
-			setCurrentSelectedBlogKey(newState.drafts[0]["_id"]);
-			navigate(`/drafts/${newState.drafts[0]["_id"]}`);
+			draftIdToNavigate = newState.drafts[0]["_id"];
 		} else {
-			const fetchedTitleAndKeys = await fetchBlogsTitleAndKeys();
+			const response = await fetchBlogsTitleAndKeys();
+			const fetchedTitleAndKeys = response.titleAndKeys;
 			setBlogsTitleAndKeys(fetchedTitleAndKeys);
-			navigate(`/drafts/${fetchedTitleAndKeys.drafts[0]["_id"]}`);
+			draftIdToNavigate = fetchedTitleAndKeys.drafts[0]["_id"];
 		}
+
+		// setCurrentSelectedBlogKey(draftIdToNavigate);
+		navigate(`/drafts/${draftIdToNavigate}`);
 	};
 
-	const onDeleteBlog = async (blogId, isDraft) => {
+	const handleBlogDeletion = async (blogId, isDraft) => {
 		if (!window.confirm("Are you sure you want to delete this blog?")) {
 			return;
 		}
 
-		let response;
+		const apiURL = isDraft ? DRAFT_DELETE_API_URL : PUBLISH_DELETE_API_URL;
+		const response = await handleBlogDelete(blogId, apiURL);
 
-		if (isDraft) {
-			response = await handleBlogDelete(
-				blogId,
-				"http://localhost:3000/blog/draft/delete"
-			);
+		if (response["status"] === SERVER_RESPONSES.OK) {
+			handleDeletionSuccess(blogId, isDraft);
+		} else if (response["status"] === SERVER_RESPONSES.UNAUTHORIZED) {
+			toast.error("Token expired. Please login again");
+			logOut();
 		} else {
-			response = await handleBlogDelete(
-				blogId,
-				"http://localhost:3000/blog/publish/delete"
-			);
-		}
-
-		switch (response["status"]) {
-			case -1:
-				toast.error(response["errorMessage"]);
-				break;
-			case 404 || 500:
-				toast.error(response["errorMessage"]);
-				break;
-			case 200:
-				toast.success(response["successMessage"]);
-				if (isDraft) {
-					const newState = deleteDraftFromSideDrawer(
-						blogsTitleAndKeys,
-						blogId
-					);
-					setBlogsTitleAndKeys(newState);
-					navigateToDraft(newState);
-				} else {
-					const newState = deletePublishedFromSideDrawer(
-						blogsTitleAndKeys,
-						blogId
-					);
-					setBlogsTitleAndKeys(newState);
-					if (hasMorePublishedBlogs(newState)) {
-						setCurrentSelectedBlogKey(
-							newState.publishedBlogs[0]["_id"]
-						);
-						navigate(`/edit/${newState.publishedBlogs[0]["_id"]}`);
-					} else {
-						navigateToDraft(newState);
-					}
-				}
+			handleResponse(response);
 		}
 	};
 
-	/**
-	 * To update the title of the menu item in the side drawer
-	 */
-	const updateSideDrawerMenuItemTitle = (
-		currentMenuItemKey,
-		newTitle,
-		isDraft
-	) => {
+	const handleDeletionSuccess = (blogId, isDraft) => {
+		const newState = isDraft
+			? removeDraftFromSideDrawer(blogsTitleAndKeys, blogId)
+			: removePublishedFromSideDrawer(blogsTitleAndKeys, blogId);
+
+		setBlogsTitleAndKeys(newState);
+
 		if (isDraft) {
-			setBlogsTitleAndKeys((prevState) => {
-				const updatedDrafts = prevState.drafts.map((draft) => {
-					if (draft._id === currentMenuItemKey) {
-						return { ...draft, title: newTitle };
-					}
-					return draft;
-				});
-
-				return { ...prevState, drafts: updatedDrafts };
-			});
+			setCoverImg(null);
+			navigateToDraft(newState);
 		} else {
-			setBlogsTitleAndKeys((prevState) => {
-				const updatedPublished = prevState.publishedBlogs.map(
-					(published) => {
-						if (published._id === currentMenuItemKey) {
-							return { ...published, title: newTitle };
-						}
-						return published;
-					}
-				);
+			handlePublishedBlogDeletion(newState);
+		}
+	};
 
-				return { ...prevState, publishedBlogs: updatedPublished };
-			});
+	const handlePublishedBlogDeletion = (newState) => {
+		if (hasMorePublishedBlogs(newState)) {
+			setCurrentSelectedBlogKey(newState.publishedBlogs[0]["_id"]);
+			navigate(`/edit/${newState.publishedBlogs[0]["_id"]}`);
+		} else {
+			setWasDraftWindow(isDraftWindow);
+			navigateToDraft(newState);
 		}
 	};
 
 	useEffect(() => {
-		const fetchBlogsTitleAndKeys = async () => {
-			setBlogsTitleAndKeys(null);
+		const loadBlogsTitleThenNavigate = async () => {
 			setIsBlogsTitleLoading(true);
-			let response;
-			try {
-				response = await fetch(
-					"http://localhost:3000/blog/getBlogsTitlesAndKeys",
-					{
-						method: "GET",
-						headers: {
-							Authorization: `Bearer ${user.token}`,
-						},
-					}
-				);
-				const json = await response.json();
-				if (!ingnore) {
-					const fetchedTitleAndKeys = json["titleAndKeys"];
-					setIsBlogsTitleLoading(false);
+
+			const response = await fetchBlogsTitleAndKeys();
+
+			if (!ignore) {
+				if (response.status === SERVER_RESPONSES.OK) {
+					const fetchedTitleAndKeys = response.titleAndKeys;
+					const firstDraftId = fetchedTitleAndKeys.drafts[0]._id;
+
 					setBlogsTitleAndKeys(fetchedTitleAndKeys);
-					setCurrentSelectedBlogKey(
-						fetchedTitleAndKeys["drafts"][0]["_id"]
-					);
-					navigate(
-						`/drafts/${fetchedTitleAndKeys["drafts"][0]["_id"]}`
-					);
+					setCurrentSelectedBlogKey(firstDraftId);
+					setIsBlogsTitleLoading(false);
+					navigate(`/drafts/${firstDraftId}`);
+				} else if (response.status === SERVER_RESPONSES.UNAUTHORIZED) {
+					toast.error("Token expired. Please login again");
+					logOut();
+				} else {
+					handleResponse(response);
 				}
-			} catch (error) {
-				console.error("Error from DraftLayout\n\n", error);
 			}
 		};
-		let ingnore = false;
-		fetchBlogsTitleAndKeys();
+
+		let ignore = false;
+		loadBlogsTitleThenNavigate();
 
 		return () => {
-			ingnore = true;
+			ignore = true;
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	if (isBlogsTitleLoading || blogsTitleAndKeys.length === 0)
@@ -337,8 +296,8 @@ export const DraftLayout = () => {
 	else {
 		return (
 			<>
-				<div className="draft-layout-container h-screen flex flex-col 2xl:flex 2xl:flex-col 2xl:items-center">
-					<div className="draft-sub-container 2xl:w-4/5 flex flex-col flex-1 2xl:border-[1px] 2xl:border-solid">
+				<div className="flex flex-col 2xl:items-center">
+					<div className="2xl:w-4/5 flex flex-col flex-1 2xl:border-[1px] 2xl:border-solid">
 						<SideDrawer
 							isDrawerOpen={isDrawerOpen}
 							setIsDrawerOpen={setIsDrawerOpen}
@@ -349,32 +308,29 @@ export const DraftLayout = () => {
 							}
 							setCurrentPublished={setCurrentPublished}
 							setIsDraftWindow={setIsDraftWindow}
+							isDraftWindow={isDraftWindow}
+							setWasDraftWindow={setWasDraftWindow}
+							handleNewDraftButtonClick={
+								handleNewDraftButtonClick
+							}
 						/>
-						<ConfigProvider
-							theme={{
-								components: {
-									Button: {
-										fontSize: 14,
-										controlHeight: 28,
-									},
-								},
-							}}
-						>
-							<EditorToolbar
-								setIsDrawerOpen={setIsDrawerOpen}
-								onSave={onSave}
-								onPublishUpdate={onPublishUpdate}
-								isDraftWindow={isDraftWindow}
-								isBlogFetchingSavingUpdating={
-									isBlogFetchingSavingUpdating
-								}
-								currentSelectedBlogKey={currentSelectedBlogKey}
-								setIsPreviewWindow={setIsPreviewWindow}
-								isPreviewWindow={isPreviewWindow}
-								onDraftPublish={onDraftPublish}
-								onDeleteBlog={onDeleteBlog}
-							/>
-						</ConfigProvider>
+
+						<EditorToolbar
+							setIsDrawerOpen={setIsDrawerOpen}
+							handleSaveButtonClick={handleSaveButtonClick}
+							handlePublishUpdateClick={handlePublishUpdateClick}
+							isDraftWindow={isDraftWindow}
+							isBlogActionLoading={isBlogActionLoading}
+							currentSelectedBlogKey={currentSelectedBlogKey}
+							setIsPreviewWindow={setIsPreviewWindow}
+							isPreviewWindow={isPreviewWindow}
+							handleSubmitForDraftPublish={
+								handleSubmitForDraftPublish
+							}
+							handleBlogDeletion={handleBlogDeletion}
+							setWasDraftWindow={setWasDraftWindow}
+						/>
+
 						<FormProvider {...methods}>
 							<Outlet
 								context={{
@@ -386,6 +342,11 @@ export const DraftLayout = () => {
 									isDraftWindow,
 									coverImg,
 									setCoverImg,
+									setIsPreviewWindow,
+									isBlogActionLoading,
+									fetchBlogWithId,
+									setIsCoverImgNull,
+									wasDraftWindow,
 								}}
 							/>
 						</FormProvider>

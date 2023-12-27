@@ -2,7 +2,7 @@ import { Menu } from "antd";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import { createMenuItem } from "../utils/menuItemHelpers.js";
+import { createMenuItem } from "../helpers/sideDrawerHelper.js";
 
 export const BlogsMenu = ({
 	drafts,
@@ -10,25 +10,35 @@ export const BlogsMenu = ({
 	currentSelectedBlogKey,
 	setCurrentSelectedBlogKey,
 	setIsDraftWindow,
+	isDraftWindow,
+	setWasDraftWindow,
+	handleNewDraftButtonClick,
 }) => {
 	const navigate = useNavigate();
 
 	const menuItems = [
 		createMenuItem("My Drafts", "drafts", null, drafts, null),
 		createMenuItem("Published", "published", null, published, null),
+		createMenuItem("Create New Draft", "newDraft", null, null, null),
 	];
+
+	const handleMenuItemClick = (key, isDraft) => {
+		if (key === "newDraft") {
+			handleNewDraftButtonClick();
+		} else {
+			setIsDraftWindow(isDraft);
+			setCurrentSelectedBlogKey(key);
+
+			const basePath = isDraft ? "/drafts" : "/edit";
+			navigate(`${basePath}/${key}`);
+		}
+	};
 
 	return (
 		<Menu
 			onClick={(e) => {
-				if (e["keyPath"][1] === "drafts") {
-					setIsDraftWindow(true);
-					navigate(`/drafts/${e["key"]}`);
-				} else if (e["keyPath"][1] === "published") {
-					setIsDraftWindow(false);
-					navigate(`/edit/${e["key"]}`);
-				}
-				setCurrentSelectedBlogKey(e["key"]);
+				setWasDraftWindow(isDraftWindow);
+				handleMenuItemClick(e.key, e.keyPath[1] === "drafts");
 			}}
 			selectedKeys={[currentSelectedBlogKey]}
 			defaultOpenKeys={["sub1"]}
@@ -43,4 +53,7 @@ BlogsMenu.propTypes = {
 	currentSelectedBlogKey: PropTypes.string.isRequired,
 	setCurrentSelectedBlogKey: PropTypes.func.isRequired,
 	setIsDraftWindow: PropTypes.func.isRequired,
+	isDraftWindow: PropTypes.bool.isRequired,
+	setWasDraftWindow: PropTypes.func.isRequired,
+	handleNewDraftButtonClick: PropTypes.func.isRequired,
 };

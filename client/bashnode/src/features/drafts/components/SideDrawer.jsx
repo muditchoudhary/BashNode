@@ -2,7 +2,7 @@ import { Drawer } from "antd";
 import PropTypes from "prop-types";
 
 import { BlogsMenu } from "./BlogsMenu";
-import { formatBlogList } from "../utils/menuItemHelpers.js";
+import { formatBlogList } from "../helpers/sideDrawerHelper.js";
 
 import { ReactComponent as PageIcon } from "../../../assets/icons/page.svg";
 import { ReactComponent as PublishedIcon } from "../../../assets/icons/page-done.svg";
@@ -16,6 +16,9 @@ export const SideDrawer = ({
 	currentSelectedBlogKey,
 	setCurrentSelectedBlogKey,
 	setIsDraftWindow,
+	isDraftWindow,
+	setWasDraftWindow,
+	handleNewDraftButtonClick,
 }) => {
 	const drafts = formatBlogList(
 		blogsTitleAndKeys["drafts"],
@@ -40,6 +43,9 @@ export const SideDrawer = ({
 				currentSelectedBlogKey={currentSelectedBlogKey}
 				setCurrentSelectedBlogKey={setCurrentSelectedBlogKey}
 				setIsDraftWindow={setIsDraftWindow}
+				isDraftWindow={isDraftWindow}
+				setWasDraftWindow={setWasDraftWindow}
+				handleNewDraftButtonClick={handleNewDraftButtonClick}
 			/>
 		</Drawer>
 	);
@@ -51,4 +57,7 @@ SideDrawer.propTypes = {
 	currentSelectedBlogKey: PropTypes.string.isRequired,
 	setCurrentSelectedBlogKey: PropTypes.func.isRequired,
 	setIsDraftWindow: PropTypes.func.isRequired,
+	isDraftWindow: PropTypes.bool.isRequired,
+	setWasDraftWindow: PropTypes.func.isRequired,
+	handleNewDraftButtonClick: PropTypes.func.isRequired,
 };
