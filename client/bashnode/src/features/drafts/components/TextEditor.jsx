@@ -81,7 +81,6 @@ export const TextEditor = ({
 		setValue("title", he.decode(currentBlog.title));
 		setValue("article", he.decode(currentBlog.content));
 	}, []);
-	// console.log(currentBlog);
 	return (
 		<>
 			<form

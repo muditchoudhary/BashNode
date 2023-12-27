@@ -168,7 +168,6 @@ export const BlogPreview = () => {
 								const match = /language-(\w+)/.exec(
 									className || ""
 								);
-								// console.log(match)
 								return match ? (
 									<SyntaxHighlighter
 										{...rest}

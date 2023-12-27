@@ -38,7 +38,6 @@ export const HomeLayout = () => {
 	};
 
 	const onAvtarIconClick = ({ key }) => {
-		console.log(key);
 		switch (key) {
 			case "sign-up":
 				navigateToSignUp();

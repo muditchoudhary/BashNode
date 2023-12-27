@@ -42,13 +42,14 @@ export const DraftEditor = () => {
 					setIsDraftLoading(false);
 					setCurrentDraft(response.blog);
 					setIsDraftWindow(true);
+					setIsPreviewWindow(false);
 					setCoverImg(response.blog["cover_img"]);
 					if (response.blog["cover_img"] !== "") {
 						setIsCoverImgNull(false);
 					}
 				} else if (response.status === SERVER_RESPONSES.UNAUTHORIZED) {
 					toast.error("Token expired. Please login again");
-                    logOut();
+					logOut();
 				} else {
 					handleResponse(response);
 				}

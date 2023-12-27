@@ -344,7 +344,6 @@ export const DraftController = (
 			});
 		} catch (error) {
 			console.error(error);
-			console.log(user);
 			return res
 				.status(SERVER_RESPONSES.INTERNAL_SERVER_ERROR)
 				.json({ success: false, message: "Internal Server Error" });

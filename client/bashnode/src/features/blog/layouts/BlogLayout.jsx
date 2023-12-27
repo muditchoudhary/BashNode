@@ -71,7 +71,6 @@ export const BlogLayout = () => {
 	};
 
 	const onAvtarIconClick = ({ key }) => {
-		console.log(key);
 		switch (key) {
 			case "sign-up":
 				navigate("/sign-up");
@@ -279,7 +278,6 @@ export const BlogLayout = () => {
 								const match = /language-(\w+)/.exec(
 									className || ""
 								);
-								// console.log(match)
 								return match ? (
 									<SyntaxHighlighter
 										{...rest}
