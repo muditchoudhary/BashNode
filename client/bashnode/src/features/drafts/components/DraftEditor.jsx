@@ -5,11 +5,11 @@ import { toast } from "react-toastify";
 import { Spinner } from "../../../common/Spinner";
 
 import { EditorContainer } from "./EditorContainer";
-import { SERVER_RESPONSES } from "../../../globalConstants/constants";
+import { SERVER_RESPONSES, BACKEND_URL } from "../../../globalConstants/constants";
 import { handleResponse } from "../helpers/errorHandler";
 import { useLogout } from "../../authenticaton/hooks/useLogOut";
 
-const GET_DRAFT_URL = "http://localhost:3000/blog/draft/";
+const GET_DRAFT_URL = `${BACKEND_URL}blog/draft/`;
 
 export const DraftEditor = () => {
 	const [isDraftLoading, setIsDraftLoading] = useState(false);

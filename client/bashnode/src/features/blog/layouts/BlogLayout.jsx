@@ -14,16 +14,16 @@ import {
 	menuItemsWhenLogIN,
 	menuItemsWhenLogOut,
 	SERVER_RESPONSES,
+    BACKEND_URL
 } from "../../../globalConstants/constants";
 import { handleResponse } from "../../drafts/helpers/errorHandler";
 import { useLogout } from "../../authenticaton/hooks/useLogOut";
 import { useAuthContext } from "../../../hooks/useAuthContext";
-import { set } from "lodash";
 
-const GET_PUBLISH_BLOG_URL = "http://localhost:3000/blog/getsingleBlog/";
-const GET_BLOG_LIKES_URL = "http://localhost:3000/blog/publish/getLikes/";
-const LIKE_BLOG_URL = "http://localhost:3000/blog/publish/like/";
-const UNLIKE_BLOG_URL = "http://localhost:3000/blog/publish/unlike/";
+const GET_PUBLISH_BLOG_URL = `${BACKEND_URL}blog/getsingleBlog/`;
+const GET_BLOG_LIKES_URL = `${BACKEND_URL}blog/publish/getLikes/`;
+const LIKE_BLOG_URL = `${BACKEND_URL}blog/publish/like/`;
+const UNLIKE_BLOG_URL = `${BACKEND_URL}blog/publish/unlike/`;
 
 export const BlogLayout = () => {
 	const [isBlogLoading, setIsBlogLoading] = useState(false);
@@ -145,7 +145,7 @@ export const BlogLayout = () => {
 		const fetchUserAvatarAndLikes = async () => {
 			try {
 				const response = await fetch(
-					"http://localhost:3000/user/get-user-avatar-likes",
+					`${BACKEND_URL}user/get-user-avatar-likes`,
 					{
 						method: "GET",
 						mode: "cors",

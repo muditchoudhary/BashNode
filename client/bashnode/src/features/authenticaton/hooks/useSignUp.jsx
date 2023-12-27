@@ -1,10 +1,9 @@
 import { useState } from "react";
 
 import { useAuthContext } from "../../../hooks/useAuthContext";
-import { SERVER_RESPONSES } from "../../../globalConstants/constants";
-import { FETCH_STATUS } from "../../../globalConstants/constants";
+import { SERVER_RESPONSES, FETCH_STATUS, BACKEND_URL } from "../../../globalConstants/constants";
 
-const SIGN_UP_URL = "http://localhost:3000/auth/sign-up";
+const SIGN_UP_URL = `${BACKEND_URL}auth/sign-up`;
 
 export const useSignUp = () => {
 	const [validationErrors, setValidationErrors] = useState(null);

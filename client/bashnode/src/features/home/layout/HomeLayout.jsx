@@ -11,6 +11,7 @@ import {
 	SERVER_RESPONSES,
 	menuItemsWhenLogIN,
 	menuItemsWhenLogOut,
+    BACKEND_URL
 } from "../../../globalConstants/constants";
 import { useLogout } from "../../authenticaton/hooks/useLogOut";
 import { handleResponse } from "../../drafts/helpers/errorHandler";
@@ -60,7 +61,7 @@ export const HomeLayout = () => {
 		const fetchUserAvatar = async () => {
 			try {
 				const response = await fetch(
-					"http://localhost:3000/user/get-user-avatar-likes",
+					`${BACKEND_URL}user/get-user-avatar-likes`,
 					{
 						method: "GET",
 						mode: "cors",

@@ -13,7 +13,7 @@ import {
 	removeDraftFromSideDrawer,
 	removePublishedFromSideDrawer,
 } from "../helpers/sideDrawerHelper";
-import { SERVER_RESPONSES } from "../../../globalConstants/constants";
+import { SERVER_RESPONSES, BACKEND_URL } from "../../../globalConstants/constants";
 import { useLogout } from "../../authenticaton/hooks/useLogOut";
 
 // For reference
@@ -39,8 +39,8 @@ import { useLogout } from "../../authenticaton/hooks/useLogOut";
 //     "updated_at": "2023-09-23T05:50:48.684Z",
 //     "__v": 0
 // }
-const DRAFT_DELETE_API_URL = "http://localhost:3000/blog/draft/delete";
-const PUBLISH_DELETE_API_URL = "http://localhost:3000/blog/publish/delete";
+const DRAFT_DELETE_API_URL = `${BACKEND_URL}blog/draft/delete`;
+const PUBLISH_DELETE_API_URL = `${BACKEND_URL}blog/publish/delete`;
 
 export const DraftLayout = () => {
 	const [blogsTitleAndKeys, setBlogsTitleAndKeys] = useState([]);

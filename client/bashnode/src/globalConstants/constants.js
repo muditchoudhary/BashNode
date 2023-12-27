@@ -37,3 +37,5 @@ export const menuItemsWhenLogOut = [
 		key: "sign-in",
 	},
 ];
+
+export const BACKEND_URL = "https://bashnode.onrender.com/";

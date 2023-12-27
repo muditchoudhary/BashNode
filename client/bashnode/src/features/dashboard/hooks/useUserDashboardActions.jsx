@@ -4,12 +4,13 @@ import { makeRequest, handleResponse } from "../../../helpers/globalHelpers";
 import {
 	FETCH_STATUS,
 	SERVER_RESPONSES,
+    BACKEND_URL,
 } from "../../../globalConstants/constants";
 import { useAuthContext } from "../../../hooks/useAuthContext";
 
-const GET_USER_AVATAR_URL = "http://localhost:3000/user/get-user-avatar";
-const GET_USER_DETAILS_URL = "http://localhost:3000/user/get-user-details";
-const UPDATE_USER_AVATAR_URL = "http://localhost:3000/user/update-user-avatar";
+const GET_USER_AVATAR_URL = `${BACKEND_URL}user/get-user-avatar`;
+const GET_USER_DETAILS_URL = `${BACKEND_URL}user/get-user-details`;
+const UPDATE_USER_AVATAR_URL = `${BACKEND_URL}user/update-user-avatar`;
 
 export const useUserDashboardActions = () => {
 	const [isActionLoading, setIsActionLoading] = useState(false);

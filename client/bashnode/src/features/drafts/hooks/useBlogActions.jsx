@@ -1,16 +1,15 @@
 import { useState } from "react";
 
 import { useAuthContext } from "../../../hooks/useAuthContext";
-import { SERVER_RESPONSES } from "../../../globalConstants/constants";
-import { FETCH_STATUS } from "../../../globalConstants/constants";
+import { SERVER_RESPONSES, FETCH_STATUS, BACKEND_URL } from "../../../globalConstants/constants";
 import { handleResponse, makeRequest } from "../../../helpers/globalHelpers";
 
-const SAVE_DRAFT_API_URL = "http://localhost:3000/blog/draft/save";
-const PUBLISH_UPDATE_API_URL = "http://localhost:3000/blog/publish/update";
-const DRAFT_PUBLISH_API_URL = "http://localhost:3000/blog/draft/publish";
+const SAVE_DRAFT_API_URL = `${BACKEND_URL}blog/draft/save`;
+const PUBLISH_UPDATE_API_URL = `${BACKEND_URL}blog/publish/update`;
+const DRAFT_PUBLISH_API_URL = `${BACKEND_URL}blog/draft/publish`;
 const GET_BLOGS_TITLES_AND_KEYS_API_URL =
-	"http://localhost:3000/blog/getBlogsTitlesAndKeys";
-const CREATE_NEW_DRAFT_API_URL = "http://localhost:3000/blog/draft/create";
+	`${BACKEND_URL}blog/getBlogsTitlesAndKeys`;
+const CREATE_NEW_DRAFT_API_URL = `${BACKEND_URL}blog/draft/create`;
 
 export const useBlogActions = () => {
 	const [isBlogActionLoading, setIsBlogActionLoading] = useState(false);

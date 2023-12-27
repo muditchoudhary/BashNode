@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import { useLazyLoad } from "../hooks/useLazyLoad";
 import { BlogCard } from "./BlogCard";
 import { CardLoading } from "./CardLoading";
+import { BACKEND_URL } from "../../../globalConstants/constants";
 
 // There is a bug, that the fetched posts repeats itself (meaning first 10 posts repeats themselves again), so we need to remove the duplicates
 // Currently, I don't know why the fetched posts repeats itself
@@ -28,7 +29,7 @@ export const Posts = ({ handleOnPostClick }) => {
 		let response;
 		try {
 			response = await fetch(
-				`http://localhost:3000/blog/published/blogs?page=${currentPage}&limit=10`,
+				`${BACKEND_URL}blog/published/blogs?page=${currentPage}&limit=10`,
 				{
 					method: "GET",
 				}

@@ -5,11 +5,11 @@ import { toast } from "react-toastify";
 import { Spinner } from "../../../common/Spinner";
 
 import { EditorContainer } from "./EditorContainer";
-import { SERVER_RESPONSES } from "../../../globalConstants/constants";
+import { BACKEND_URL, SERVER_RESPONSES } from "../../../globalConstants/constants";
 import { handleResponse } from "../helpers/errorHandler";
 import { useLogout } from "../../authenticaton/hooks/useLogOut";
 
-const GET_PUBLISH_BLOG_URL = "http://localhost:3000/blog/publish/";
+const GET_PUBLISH_BLOG_URL = `${BACKEND_URL}blog/publish/`;
 
 export const PublishEditor = () => {
 	const [isBlogLoading, setIsBlogLoading] = useState(false);

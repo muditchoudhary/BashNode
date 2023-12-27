@@ -1,10 +1,9 @@
 import { useState } from "react";
 
 import { useAuthContext } from "../../../hooks/useAuthContext";
-import { SERVER_RESPONSES } from "../../../globalConstants/constants";
-import { FETCH_STATUS } from "../../../globalConstants/constants";
+import { SERVER_RESPONSES, FETCH_STATUS, BACKEND_URL} from "../../../globalConstants/constants";
 
-const SIGN_IN_URL = "http://localhost:3000/auth/sign-in";
+const SIGN_IN_URL = `${BACKEND_URL}auth/sign-in`;
 
 export const useSignIn = () => {
 	const [isLoading, setIsLoading] = useState(false);
