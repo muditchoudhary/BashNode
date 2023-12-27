@@ -113,6 +113,7 @@ export const App = () => {
 						<Route path=":blogId" element={<BlogLayout />} />
 					</Route>
 				</Route>
+                <Route path="*" element={<Navigate to="/" replace />} />
 			</Routes>
 			<ToastContainer />
 		</BrowserRouter>

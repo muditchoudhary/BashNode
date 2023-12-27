@@ -6,6 +6,6 @@ export const SERVER_RESPONSES = {
     UNAUTHORIZED: 401,
 };
 
-export const JSON_TOKEN_EXPIRATION_TIME = "10s";
+export const JSON_TOKEN_EXPIRATION_TIME = "12h";
 export const SALT_ROUNDS = 10;
 export const MAX_COVER_IMG_SIZE = 10 * 1024 * 1024;
