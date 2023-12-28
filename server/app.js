@@ -27,7 +27,7 @@ const publishRouter = loadPublishRoutes();
 const userRouter = loadUserRoutes();
 
 const CORS_OPTIONS = {
-	origin: "https://bashnode.onrender.com",
+	origin: "https://bashnode-frontend.onrender.com",
 	credentials: true,
 };
 
