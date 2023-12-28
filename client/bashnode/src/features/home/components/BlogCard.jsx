@@ -2,12 +2,8 @@ import { Avatar } from "antd";
 import { useMediaQuery } from "react-responsive";
 import { format } from "date-fns";
 import PropTypes from "prop-types";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import he from "he";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
-import demoCoverImg from "../../../assets/images/publish-article.svg";
 import BlankDocument from "../../../assets/images/image-file.svg"
 export const BlogCard = ({
 	id,
@@ -48,7 +44,7 @@ export const BlogCard = ({
 						<div className=" flex justify-between">
 							<div className="bg-white rounded-b flex flex-col gap-3 leading-normal flex-2">
 								<div className="text-gray-900 font-bold line-clamp-2">
-									{title}
+									{he.decode(title)}
 								</div>
 								<div className="text-gray-700 text-base line-clamp-4">
 									{he.decode(content)}
@@ -77,7 +73,7 @@ export const BlogCard = ({
 					<>
 						<div className="bg-white rounded-b flex flex-col justify-between leading-normal">
 							<div className="text-gray-900 font-bold line-clamp-2">
-								{title}
+								{he.decode(title)}
 							</div>
 						</div>
 						<div className="h-48 w-full flex-none rounded-xl overflow-hidden">

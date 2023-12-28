@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
 
 import { Spinner } from "../../../common/Spinner";
 

@@ -5,7 +5,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { HeartOutlined } from "@ant-design/icons";
-import { toast } from "react-toastify";
 import he from "he";
 
 import { useUserDashboardActions } from "../../dashboard/hooks/useUserDashboardActions";

@@ -1,3 +1,5 @@
+import he from "he";
+
 // This function updates the title of a menu item in the side drawer.
 export const updateMenuItemTitleInSideDrawer = (currentMenuItemKey, newTitle, isDraft, setBlogsTitleAndKeys) => {
     setBlogsTitleAndKeys(prevState => {
@@ -49,7 +51,7 @@ export const createMenuItem = (label, key, icon, children, type) => {
 export const formatBlogList = (blogList, icon) => {
 	const formattedBlogList = blogList.map((blogObj) => {
 		return createMenuItem(
-			!blogObj.title ? "Untitled" : blogObj.title,
+			!blogObj.title ? "Untitled" : he.decode(blogObj.title),
 			blogObj._id,
 			icon,
 			null,
