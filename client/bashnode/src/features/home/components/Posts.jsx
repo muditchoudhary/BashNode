@@ -76,6 +76,9 @@ export const Posts = ({ handleOnPostClick }) => {
 				<CardLoading />
 				<CardLoading />
 				<CardLoading />
+				<CardLoading />
+				<CardLoading />
+				<CardLoading />
 			</div>
 		</>
 	);

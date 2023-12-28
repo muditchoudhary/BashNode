@@ -11,7 +11,7 @@ import {
 	SERVER_RESPONSES,
 	menuItemsWhenLogIN,
 	menuItemsWhenLogOut,
-    BACKEND_URL
+	BACKEND_URL,
 } from "../../../globalConstants/constants";
 import { useLogout } from "../../authenticaton/hooks/useLogOut";
 import { handleResponse } from "../../drafts/helpers/errorHandler";
@@ -72,17 +72,17 @@ export const HomeLayout = () => {
 					}
 				);
 				if (!ignore) {
-                    if (response.status === SERVER_RESPONSES.OK) {
-                        const data = await response.json();
-                        setUserAvatar(data["avatar"]);
+					if (response.status === SERVER_RESPONSES.OK) {
+						const data = await response.json();
+						setUserAvatar(data["avatar"]);
 					} else if (
 						response.status === SERVER_RESPONSES.UNAUTHORIZED
 					) {
-						toast.error("Token expired. Please login again");
-                        logOut();
-					} else {
-						handleResponse(response);
+						response["message"] =
+							"Token expired. Please login again";
+						logOut();
 					}
+					handleResponse(response);
 				}
 			} catch (error) {
 				console.error(error);

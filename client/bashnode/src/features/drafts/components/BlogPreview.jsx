@@ -79,11 +79,10 @@ export const BlogPreview = () => {
 					setUserName(response.details["username"]);
 					setIsUserDetailsFetching(false);
 				} else if (response.status === SERVER_RESPONSES.UNAUTHORIZED) {
-					toast.error("Token expired. Please login again");
+					response["message"] = "Token expired. Please login again";
 					logOut();
-				} else {
-					handleResponse(response);
 				}
+				handleResponse(response);
 			}
 		};
 

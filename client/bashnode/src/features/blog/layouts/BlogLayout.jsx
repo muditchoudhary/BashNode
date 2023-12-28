@@ -14,7 +14,7 @@ import {
 	menuItemsWhenLogIN,
 	menuItemsWhenLogOut,
 	SERVER_RESPONSES,
-    BACKEND_URL
+	BACKEND_URL,
 } from "../../../globalConstants/constants";
 import { handleResponse } from "../../drafts/helpers/errorHandler";
 import { useLogout } from "../../authenticaton/hooks/useLogOut";
@@ -54,16 +54,17 @@ export const BlogLayout = () => {
 			});
 
 			if (response.status === SERVER_RESPONSES.UNAUTHORIZED) {
-				toast.error(`You need to be logged in to ${action}e this blog`);
+				response[
+					"message"
+				] = `You need to be logged in to ${action}e this blog`;
 				logOut();
-                setIsLiked(false);
+				setIsLiked(false);
 			} else if (response.status === SERVER_RESPONSES.OK) {
 				const json = await response.json();
 				setLikes(json.likes);
 				setIsLiked(!isLiked);
-			} else {
-				handleResponse(response);
 			}
+			handleResponse(response);
 		} catch (error) {
 			console.error(error);
 			toast.error(`Error occurred while ${action}ing blog`);

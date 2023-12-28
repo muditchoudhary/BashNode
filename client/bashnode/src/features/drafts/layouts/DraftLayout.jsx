@@ -13,7 +13,10 @@ import {
 	removeDraftFromSideDrawer,
 	removePublishedFromSideDrawer,
 } from "../helpers/sideDrawerHelper";
-import { SERVER_RESPONSES, BACKEND_URL } from "../../../globalConstants/constants";
+import {
+	SERVER_RESPONSES,
+	BACKEND_URL,
+} from "../../../globalConstants/constants";
 import { useLogout } from "../../authenticaton/hooks/useLogOut";
 
 // For reference
@@ -90,11 +93,10 @@ export const DraftLayout = () => {
 			setCurrentSelectedBlogKey(response["draft"]["_id"]);
 			navigate(`/drafts/${response["draft"]["_id"]}`);
 		} else if (response["status"] === SERVER_RESPONSES.UNAUTHORIZED) {
-			toast.error("Token expired. Please login again");
+			response["message"] = "Token expired. Please login again";
 			logOut();
-		} else {
-			handleResponse(response);
 		}
+		handleResponse(response);
 	};
 
 	const handleSaveButtonClick = methods.handleSubmit(
@@ -118,11 +120,10 @@ export const DraftLayout = () => {
 				isCoverImgNull
 			);
 			if (response["status"] === SERVER_RESPONSES.UNAUTHORIZED) {
-				toast.error("Token expired. Please login again");
+				response["message"] = "Token expired. Please login again";
 				logOut();
-			} else {
-				handleResponse(response);
 			}
+			handleResponse(response);
 		},
 		(error) => {
 			const validationErrorMsg = error[Object.keys(error)[0]]["message"];
@@ -148,11 +149,10 @@ export const DraftLayout = () => {
 				isCoverImgNull
 			);
 			if (response["status"] === SERVER_RESPONSES.UNAUTHORIZED) {
-				toast.error("Token expired. Please login again");
+				response["message"] = "Token expired. Please login again";
 				logOut();
-			} else {
-				handleResponse(response);
 			}
+			handleResponse(response);
 		},
 		(error) => {
 			const validationErrorMsg = error[Object.keys(error)[0]]["message"];
@@ -180,11 +180,10 @@ export const DraftLayout = () => {
 					});
 				}, DELAY_TO_PUBLISHED_BLOG_IN_MS);
 			} else if (response["status"] === SERVER_RESPONSES.UNAUTHORIZED) {
-				toast.error("Token expired. Please login again");
+				response["message"] = "Token expired. Please login again";
 				logOut();
-			} else {
-				handleResponse(response);
 			}
+			handleResponse(response);
 		},
 		(error) => {
 			const validationErrorMsg = error[Object.keys(error)[0]]["message"];
@@ -227,11 +226,10 @@ export const DraftLayout = () => {
 		if (response["status"] === SERVER_RESPONSES.OK) {
 			handleDeletionSuccess(blogId, isDraft);
 		} else if (response["status"] === SERVER_RESPONSES.UNAUTHORIZED) {
-			toast.error("Token expired. Please login again");
+			response["message"] = "Token expired. Please login again";
 			logOut();
-		} else {
-			handleResponse(response);
 		}
+		handleResponse(response);
 	};
 
 	const handleDeletionSuccess = (blogId, isDraft) => {
@@ -275,11 +273,10 @@ export const DraftLayout = () => {
 					setIsBlogsTitleLoading(false);
 					navigate(`/drafts/${firstDraftId}`);
 				} else if (response.status === SERVER_RESPONSES.UNAUTHORIZED) {
-					toast.error("Token expired. Please login again");
+					response["message"] = "Token expired. Please login again";
 					logOut();
-				} else {
-					handleResponse(response);
 				}
+				handleResponse(response);
 			}
 		};
 

@@ -5,7 +5,10 @@ import { toast } from "react-toastify";
 import { Spinner } from "../../../common/Spinner";
 
 import { EditorContainer } from "./EditorContainer";
-import { BACKEND_URL, SERVER_RESPONSES } from "../../../globalConstants/constants";
+import {
+	BACKEND_URL,
+	SERVER_RESPONSES,
+} from "../../../globalConstants/constants";
 import { handleResponse } from "../helpers/errorHandler";
 import { useLogout } from "../../authenticaton/hooks/useLogOut";
 
@@ -14,7 +17,7 @@ const GET_PUBLISH_BLOG_URL = `${BACKEND_URL}blog/publish/`;
 export const PublishEditor = () => {
 	const [isBlogLoading, setIsBlogLoading] = useState(false);
 	const {
-        setCurrentPublished,
+		setCurrentPublished,
 		currentPublished,
 		setIsDraftWindow,
 		isDraftWindow,
@@ -24,11 +27,11 @@ export const PublishEditor = () => {
 		isBlogActionLoading,
 		fetchBlogWithId,
 		setIsCoverImgNull,
-        wasDraftWindow,
+		wasDraftWindow,
 	} = useOutletContext();
 
 	const { publishedBlogId } = useParams();
-    const { logOut } = useLogout();
+	const { logOut } = useLogout();
 
 	useEffect(() => {
 		const fetchPublishedBlog = async () => {
@@ -47,16 +50,18 @@ export const PublishEditor = () => {
 						setIsCoverImgNull(false);
 					}
 				} else if (response.status === SERVER_RESPONSES.UNAUTHORIZED) {
-                    toast.error("Token expired. Please login again");
-                    logOut();
-                }
-                 else {
-					handleResponse(response);
+					response["message"] = "Token expired. Please login again";
+					logOut();
 				}
+
+				handleResponse(response);
 			}
 		};
 		let ignore = false;
-		if (publishedBlogId !== currentPublished?._id || wasDraftWindow !== isDraftWindow) {
+		if (
+			publishedBlogId !== currentPublished?._id ||
+			wasDraftWindow !== isDraftWindow
+		) {
 			fetchPublishedBlog();
 		}
 

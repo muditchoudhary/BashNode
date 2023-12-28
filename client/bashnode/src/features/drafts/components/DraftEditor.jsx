@@ -5,7 +5,10 @@ import { toast } from "react-toastify";
 import { Spinner } from "../../../common/Spinner";
 
 import { EditorContainer } from "./EditorContainer";
-import { SERVER_RESPONSES, BACKEND_URL } from "../../../globalConstants/constants";
+import {
+	SERVER_RESPONSES,
+	BACKEND_URL,
+} from "../../../globalConstants/constants";
 import { handleResponse } from "../helpers/errorHandler";
 import { useLogout } from "../../authenticaton/hooks/useLogOut";
 
@@ -48,11 +51,10 @@ export const DraftEditor = () => {
 						setIsCoverImgNull(false);
 					}
 				} else if (response.status === SERVER_RESPONSES.UNAUTHORIZED) {
-					toast.error("Token expired. Please login again");
+					response["message"] = "Token expired. Please login again";
 					logOut();
-				} else {
-					handleResponse(response);
 				}
+				handleResponse(response);
 			}
 		};
 		let ignore = false;

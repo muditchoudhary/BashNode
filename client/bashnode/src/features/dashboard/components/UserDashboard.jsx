@@ -41,12 +41,11 @@ export const UserDashboard = () => {
 						setIsUserAvatarNull(false);
 					}
 				} else if (response.status === SERVER_RESPONSES.UNAUTHORIZED) {
-					toast.error("Token expired. Please login again");
+					response["message"] = "Token expired. Please login again";
 					logOut();
 					navigate("/sign-in");
-				} else {
-					handleResponse(response);
 				}
+				handleResponse(response);
 			}
 		};
 
@@ -96,12 +95,11 @@ export const UserDashboard = () => {
 			isUserAvatarNull
 		);
 		if (response.status === SERVER_RESPONSES.UNAUTHORIZED) {
-			toast.error("Token expired. Please login again");
+			response["message"] = "Token expired. Please login again";
 			logOut();
 			navigate("/sign-in");
-		} else {
-			handleResponse(response);
 		}
+		handleResponse(response);
 	};
 	if (isUserDetailsFetching) {
 		return <Spinner />;

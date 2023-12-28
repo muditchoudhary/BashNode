@@ -12,6 +12,7 @@ export const handleResponse = (response) => {
 		case SERVER_RESPONSES.VALIDATION_CONFLICT:
 		case SERVER_RESPONSES.INTERNAL_SERVER_ERROR:
 		case SERVER_RESPONSES.BAD_REQUEST:
+        case SERVER_RESPONSES.UNAUTHORIZED:
 			toast.error(response.message);
 			break;
 		case SERVER_RESPONSES.OK:
