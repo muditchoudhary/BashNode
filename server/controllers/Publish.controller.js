@@ -45,8 +45,7 @@ export const PublishController = (
 		return storedCoverImgURL;
 	};
 	const updatePublished = async (req, res, user) => {
-		const { saveImgToContainer } =
-			coverImgsAzureFunctions();
+		const { saveImgToContainer } = coverImgsAzureFunctions();
 		try {
 			const validationErrors = validationResult(req);
 			if (!validationErrors.isEmpty()) {
@@ -104,6 +103,7 @@ export const PublishController = (
 		try {
 			const publishedBlogs = await publishedBlogModel
 				.find()
+				.sort({ published_at: -1 })
 				.limit(limit * 1)
 				.skip((page - 1) * limit)
 				.exec();
