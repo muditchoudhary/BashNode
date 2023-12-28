@@ -23,7 +23,8 @@ export const HomeLayout = () => {
 	const { logOut } = useLogout();
 
 	const handleOnPostClick = (id) => {
-		window.open(`https://bashnode-frontend.onrender.com/blog/${id}`, "_blank");
+		// window.open(`https://bashnode-frontend.onrender.com/blog/${id}`, "_blank");
+        navigate(`/blog/${id}`);
 	};
 
 	const navigateToUserDashboard = () => {
