@@ -38,4 +38,4 @@ export const menuItemsWhenLogOut = [
 	},
 ];
 
-export const BACKEND_URL = "https://bashnode.onrender.com/";
+export const BACKEND_URL = "https://bashnode-backend.vercel.app/";
