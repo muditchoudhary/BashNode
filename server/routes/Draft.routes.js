@@ -28,7 +28,6 @@ export const loadDraftRoutes = (
 		getDraft,
 		publishDraft,
 		deleteDraft,
-		testDrafts,
 		createNewDraft,
 	} = controller();
 	const { validateBlogData } = validator();
@@ -73,15 +72,7 @@ export const loadDraftRoutes = (
 		validateBlogData(),
 		(req, res) => publishDraft(req, res, req.user)
 	);
-
-	router.post(
-		"/fill/draft",
-		passport.authenticate("jwt", { session: false }),
-		(req, res) => {
-			testDrafts(req, res, req.user);
-		}
-	);
-
+    
 	router.get(
 		GET_DRAFT_ROUTE,
 		passport.authenticate("jwt", { session: false }),
