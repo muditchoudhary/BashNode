@@ -23,8 +23,7 @@ export const HomeLayout = () => {
 	const { logOut } = useLogout();
 
 	const handleOnPostClick = (id) => {
-		window.open(`/blog/${id}`, "_blank");
-        // navigate(`/blog/${id}`);
+        navigate(`/blog/${id}`);
 	};
 
 	const navigateToUserDashboard = () => {
